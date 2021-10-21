@@ -1,5 +1,20 @@
 "use strict";
-let mysql = require("mysql");
+let mssql = require("mssql");
+let http = require("http");
+let httpServer = http.createServer(processServerRequest);
+httpServer.listen(8080);
+
+
+function processServerRequest(request, response){
+
+    console.log(request.url);
+    response.writeHead(200,{'Content-Type': 'text/html'});
+    response.write(output);
+
+    response.end();
+
+}
+
 
 function logIn(username, password) {
 
@@ -9,7 +24,7 @@ function logIn(username, password) {
         user: "fall2021group5",
         password: "group5fall2021"
     };
-    let con = mysql.createConnection(connectionString);
+    let con = createConnection(connectionString);
 
     con.connect(
 
@@ -45,6 +60,8 @@ function logIn(username, password) {
         temp_user = new User(record.username, record.password, record.firstName, record.lastName, record.email, record.birthday);
         return temp_user
     }
+
+    con.end();
 
 
 }
