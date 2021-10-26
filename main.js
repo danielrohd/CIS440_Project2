@@ -44,12 +44,9 @@ app.post("/", encoder, function (req, res) {
 
 app.post("/createaccount.html", encoder, function (req, res) {
     res.redirect("/createaccount.html")
-    // res.sendFile(__dirname + "/createaccount.html")
 })
 
 app.get("/createaccount.html", function (req, res) {
-    // res.sendFile(__dirname + "/welcome.html")
-    // res.send(`<p>${userAccount.first} ${userAccount.last}<br>${userAccount.username}<br>${userAccount.birthdayString}<br>${userAccount.email}</p>`);
     res.sendFile(__dirname + "/createaccount.html")
     app.use("/createaccount.css", express.static("createaccount.css"));
 })
