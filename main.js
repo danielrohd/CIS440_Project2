@@ -40,6 +40,38 @@ app.post("/",encoder,function(req,res){
         }
         res.end();
 })
+})
+
+app.post("/createaccount.html",encoder,function(req,res){
+    res.redirect("/createaccount.html")
+    // res.sendFile(__dirname + "/createaccount.html")
+})
+
+app.get("/createaccount.html",function(req,res){
+    // res.sendFile(__dirname + "/welcome.html")
+    // res.send(`<p>${userAccount.first} ${userAccount.last}<br>${userAccount.username}<br>${userAccount.birthdayString}<br>${userAccount.email}</p>`);
+    res.sendFile(__dirname + "/createaccount.html")
+    app.use("/createaccount.css",express.static("createaccount.css"));
+})
+
+app.post("/create-account",encoder,function(req,res){
+    var first = req.body.first;
+    var last = req.body.last;
+    var email = req.body.email;
+    var birthday = req.body.birthday;
+    var username = req.body.username;
+    var password = req.body.password;
+    var password2 = req.body.password2;
+
+    // if (password != password2) {
+    //     alert("Passwords do not match.")
+    // }
+
+    connection.query("insert into UserAccounts (username, password, firstName, lastName, email, birthday) values (?, ?, ?, ?, ?, ?);"
+            ,[username, password, first, last, birthday, email],function(error,results,fields){
+            if (error) throw error;
+    })
+    res.end();
 
 })
 

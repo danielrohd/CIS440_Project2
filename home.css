@@ -92,7 +92,7 @@ font-family: 'Ubuntu', sans-serif;
     padding-top: 15px;
 }
 
-a {
+.a {
     text-shadow: 0px 0px 3px rgba(117, 117, 117, 0.12);
     color: #E1BEE7;
     text-decoration: none
