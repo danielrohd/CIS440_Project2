@@ -6,9 +6,9 @@ const encoder = bodyParser.urlencoded();
 
 const app = express();
 app.set('view engine', 'ejs');
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({ extended: true }));
 //app.use(express.json());
-app.use("/home.css",express.static("home.css"));
+app.use("/home.css", express.static("home.css"));
 
 let userAccount;
 
@@ -18,43 +18,43 @@ const connection = mysql.createConnection({
     user: "fall2021group5",
     password: "group5fall2021"
 });
-connection.connect(function(error){
-    if(error) throw error
+connection.connect(function (error) {
+    if (error) throw error
     else console.log("connected to the database successfully")
 })
 
-app.get("/", function(req,res){
+app.get("/", function (req, res) {
     res.sendFile(__dirname + "/home.html");
 })
 
-app.post("/",encoder,function(req,res){
+app.post("/", encoder, function (req, res) {
     var username = req.body.username;
     var password = req.body.password;
-    connection.query("select * from UserAccounts where username= ? and password= ?;",[username,password],function(error,results,fields){
-        if(results.length >0){
+    connection.query("select * from UserAccounts where username= ? and password= ?;", [username, password], function (error, results, fields) {
+        if (results.length > 0) {
             userAccount = new User(results[0].username, results[0].password, results[0].firstName, results[0].lastName, results[0].email, results[0].birthday)
             res.redirect("/views/welcome");
         }
-        else{
+        else {
             res.redirect("/");
         }
         res.end();
-})
+    })
 })
 
-app.post("/createaccount.html",encoder,function(req,res){
+app.post("/createaccount.html", encoder, function (req, res) {
     res.redirect("/createaccount.html")
     // res.sendFile(__dirname + "/createaccount.html")
 })
 
-app.get("/createaccount.html",function(req,res){
+app.get("/createaccount.html", function (req, res) {
     // res.sendFile(__dirname + "/welcome.html")
     // res.send(`<p>${userAccount.first} ${userAccount.last}<br>${userAccount.username}<br>${userAccount.birthdayString}<br>${userAccount.email}</p>`);
     res.sendFile(__dirname + "/createaccount.html")
-    app.use("/createaccount.css",express.static("createaccount.css"));
+    app.use("/createaccount.css", express.static("createaccount.css"));
 })
 
-app.post("/create-account",encoder,function(req,res){
+app.post("/create-account", encoder, function (req, res) {
     var first = req.body.first;
     var last = req.body.last;
     var email = req.body.email;
@@ -68,15 +68,15 @@ app.post("/create-account",encoder,function(req,res){
     // }
 
     connection.query("insert into UserAccounts (username, password, firstName, lastName, email, birthday) values (?, ?, ?, ?, ?, ?);"
-            ,[username, password, first, last, birthday, email],function(error,results,fields){
+        , [username, password, first, last, birthday, email], function (error, results, fields) {
             if (error) throw error;
-    })
+        })
     res.end();
 
 })
 
 //when login is success
-app.get("/views/welcome",function(req,res){
+app.get("/views/welcome", function (req, res) {
     // res.sendFile(__dirname + "/welcome.html")
     // res.send(`<p>${userAccount.first} ${userAccount.last}<br>${userAccount.username}<br>${userAccount.birthdayString}<br>${userAccount.email}</p>`);
     res.render('welcome', {
@@ -87,7 +87,7 @@ app.get("/views/welcome",function(req,res){
 app.listen(3000);
 
 class User {
-    constructor (username, password, first, last, email, birthday) {
+    constructor(username, password, first, last, email, birthday) {
         this.username = username;
         this.password = password;
         this.first = first;
@@ -95,7 +95,7 @@ class User {
         this.email = email;
         this.birthday = [];
         birthday[0] = birthday.getFullYear();
-        birthday[1] = birthday.getMonth()+1;
+        birthday[1] = birthday.getMonth() + 1;
         birthday[2] = birthday.getDate();
         this.birthdayString = `${birthday[1]}/${birthday[2]}/${birthday[0]}`
         this.orgList = [];
@@ -103,7 +103,7 @@ class User {
 }
 
 class Org {
-    constructor (orgID, name, adminUsername) {
+    constructor(orgID, name, adminUsername) {
         this.orgID = orgID;
         this.name = name;
         this.adminUsername = adminUsername;
