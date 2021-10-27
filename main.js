@@ -60,16 +60,17 @@ app.post("/create-account", encoder, function (req, res) {
     var password = req.body.password;
     var password2 = req.body.password2;
 
-    // if (password != password2) {
-    //     alert("Passwords do not match.")
-    // }
+    // console.log(doesUsernameExist(username))
 
-    connection.query("insert into UserAccounts (username, password, firstName, lastName, email, birthday) values (?, ?, ?, ?, ?, ?);"
+    if (password != password2) {
+        res.redirect("/createaccount.html")
+    } else {
+        connection.query("insert into UserAccounts (username, password, firstName, lastName, email, birthday) values (?, ?, ?, ?, ?, ?);"
         , [username, password, first, last, birthday, email], function (error, results, fields) {
             if (error) throw error;
         })
+    }
     res.end();
-
 })
 
 //when login is success
@@ -80,6 +81,22 @@ app.get("/views/welcome", function (req, res) {
         userAccount: userAccount
     })
 })
+// function doesUsernameExist(username) {
+//     var answer = false;
+//     connection.query("select username from UserAccounts where username= ?;", [username], function (error, results, fields) {
+//         if (error) throw error;
+//         console.log(results.length)
+//         if (results.length > 0) {
+//             answer = true;
+//             console.log(answer)
+//             return callback(answer)
+//         } else {
+//             answer = false;
+//             console.log(answer)
+//             return callback(answer)
+//         }
+//     })
+// }
 
 app.listen(3000);
 
