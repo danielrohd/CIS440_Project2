@@ -66,9 +66,9 @@ app.post("/create-account", encoder, function (req, res) {
         res.redirect("/createaccount.html")
     } else {
         connection.query("insert into UserAccounts (username, password, firstName, lastName, email, birthday) values (?, ?, ?, ?, ?, ?);"
-        , [username, password, first, last, birthday, email], function (error, results, fields) {
-            if (error) throw error;
-        })
+            , [username, password, first, last, birthday, email], function (error, results, fields) {
+                if (error) throw error;
+            })
     }
     res.end();
 })
