@@ -105,3 +105,9 @@ font-family: 'Ubuntu', sans-serif;
     
     
 }
+
+#infoLoad {
+    display: none;
+    background-color: aquamarine;
+    color: red;
+}

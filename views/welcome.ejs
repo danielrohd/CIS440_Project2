@@ -6,21 +6,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Weclome</title>
     <link rel="stylesheet" href="/home.css">
-    <script src="main.js"></script>
+    <script type="text/javascript">
+        console.log('here')
+        let infoLoad = false;
+        
+        function loadInfo() {
+            if (infoLoad == false) {
+                document.getElementById("infoLoad").style.display = "inline";
+                document.getElementById("loadButton").innerHTML = "Hide Account Info"
+                infoLoad = true;
+
+                // testing to see if I can move a variable from main.js into here --> it worked
+                // need to wait until it loads to grab it though, when its hidden it returns none
+                // to pass a value the opposite way we'll probably need to set something to a form element's DOM and then run a post
+                let username = document.getElementById('username').innerHTML;
+                console.log(username)
+            } else {
+                document.getElementById("infoLoad").style.display = "none";
+                document.getElementById("loadButton").innerHTML = "Load Account Info"
+                infoLoad = false;
+            }
+        }
+    </script>
 </head>
 
 <body>
     <h1>Welcome user</h1>
-    <p id="accountInfoTest">Accout Info</p>
-    <p>Name: <%= userAccount.first %>
-            <%= userAccount.last %>
-    </p>
-    <p>Username: <%= userAccount.username %>
-    </p>
-    <p>Birthday: <%= userAccount.birthdayString %>
-    </p>
-    <p>Email: <%= userAccount.email %>
-    </p>
+
+    <div id="infoLoad">
+        <p id="accountInfoTest">Accout Info</p>
+        <p>Name: <%= userAccount.first %>
+                <%= userAccount.last %>
+        </p>
+        <p id="username">Username: <%= userAccount.username %>
+        </p>
+        <p>Birthday: <%= userAccount.birthdayString %>
+        </p>
+        <p>Email: <%= userAccount.email %>
+        </p>
+    </div>
+
+    <button id="loadButton" onclick="loadInfo()">Show Account Info</button>
 
 </body>
 
