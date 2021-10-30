@@ -113,6 +113,7 @@ class User {
         birthday[2] = birthday.getDate();
         this.birthdayString = `${birthday[1]}/${birthday[2]}/${birthday[0]}`
         this.orgList = [];
+        this.relationshipList = [];
     }
 }
 
@@ -122,5 +123,73 @@ class Org {
         this.name = name;
         this.adminUsername = adminUsername;
         this.userList = [];
+    }
+}
+
+class Relationship {
+    constructor(relationshipID, mentor, mentee, startDate, endDate=null, orgID) {
+        this.relationshipID = relationshipID;
+        this.mentor = mentor;
+        this.mentee = mentee;
+        this.orgID = orgID;
+        this.goalList = [];
+        
+        this.startDate = [];
+        startDate[0] = startDate.getFullYear();
+        startDate[1] = startDate.getMonth() + 1;
+        startDate[2] = startDate.getDate();
+        this.startDateString = `${startDate[1]}/${startDate[2]}/${startDate[0]}`
+
+        this.endDate = [];
+        endDate[0] = endDate.getFullYear();
+        endDate[1] = endDate.getMonth() + 1;
+        endDate[2] = endDate.getDate();
+        this.endDateString = `${endDate[1]}/${endDate[2]}/${endDate[0]}`
+    }
+}
+
+class Goal {
+    constructor(goalID, relationshipID, goalInfo, dueDate, startDate, orgID) {
+        this.goalID = goalID;
+        this.relationshipID = relationshipID;
+        this.goalInfo = goalInfo;
+        this.orgID = orgID;
+        this.commentList = [];
+        this.stepList = [];
+
+        this.dueDate = [];
+        dueDate[0] = dueDate.getFullYear();
+        dueDate[1] = dueDate.getMonth() + 1;
+        dueDate[2] = dueDate.getDate();
+        this.dueDateString = `${dueDate[1]}/${dueDate[2]}/${dueDate[0]}`
+
+        this.startDate = [];
+        startDate[0] = startDate.getFullYear();
+        startDate[1] = startDate.getMonth() + 1;
+        startDate[2] = startDate.getDate();
+        this.startDateString = `${startDate[1]}/${startDate[2]}/${startDate[0]}`
+    }
+}
+
+class Comment {
+    constructor(commentID, commentText, commentDate, goalID) {
+        this.commentID = commentID;
+        this.commentText = commentText;
+        this.goalID = goalID;
+
+        this.commentDate = [];
+        commentDate[0] = commentDate.getFullYear();
+        commentDate[1] = commentDate.getMonth() + 1;
+        commentDate[2] = commentDate.getDate();
+        this.commentDate = `${commentDate[1]}/${commentDate[2]}/${commentDate[0]}`
+    }
+}
+
+class Step {
+    constructor(stepID, stepText, completed=false, goalID) {
+        this.stepID = stepID;
+        this.stepText = stepText;
+        this.completed = completed;
+        this.goalID = goalID;
     }
 }
