@@ -33,6 +33,7 @@ app.post("/", encoder, function (req, res) {
     connection.query("select * from UserAccounts where username= ? and password= ?;", [username, password], function (error, results, fields) {
         if (results.length > 0) {
             userAccount = new User(results[0].username, results[0].password, results[0].firstName, results[0].lastName, results[0].email, results[0].birthday)
+
             res.redirect("/views/welcome");
         }
         else {
@@ -65,22 +66,70 @@ app.post("/create-account", encoder, function (req, res) {
     if (password != password2) {
         res.redirect("/createaccount.html")
     } else {
-        connection.query("insert into UserAccounts (username, password, firstName, lastName, email, birthday) values (?, ?, ?, ?, ?, ?);"
+        connection.query("insert into UserAccounts (username, password, firstName, lastName, birthday, email) values (?, ?, ?, ?, ?, ?);"
             , [username, password, first, last, birthday, email], function (error, results, fields) {
                 if (error) throw error;
             })
+        res.redirect("/")
     }
-    res.end();
+
 })
+
+// app.get("/create-account", encoder, function(req, res)  {
+//     res.render('organization_home', {
+//         userAccount: userAccount
+//     })
+// })
 
 //when login is success
 app.get("/views/welcome", function (req, res) {
-    // res.sendFile(__dirname + "/welcome.html")
-    // res.send(`<p>${userAccount.first} ${userAccount.last}<br>${userAccount.username}<br>${userAccount.birthdayString}<br>${userAccount.email}</p>`);
-    res.render('welcome', {
-        userAccount: userAccount
+    connection.query("select * from Organizations where orgId in (select orgId from OrgMembers where username = ?)", [userAccount.username], function (error, results, fields) {
+        if (error) throw error;
+        results.forEach(element => userAccount.addToOrgList(new Org(element.orgId, element.orgName, element.adminUsername)));
+        console.log(userAccount.orgList)
+        // orgs are pushed to the list, but currently dont render on the page, not sure whats broken
+        // currently the logs on 93/94 print before this one on 89, so the page is rendering before the query runs
+        // not sure why its out of order
+
+        console.log(userAccount.orgList)
+        console.log(userAccount)
+        // this is logging an empty list, unsure why, it logs as full earlier in the program
+
+        res.render('organization_home', {
+            userAccount: userAccount,
+        })
+        app.use("/welcome.css", express.static("welcome.css"));
+    })
+
+})
+
+app.post("/join-org", encoder, function (req, res) {
+    var orgName = req.body.orgName;
+
+    connection.query("select orgName, orgId from Organizations where orgName = ?", [orgName], function (error, results, fields) {
+        if (error) throw error;
+        if (results.length > 0) {
+            var orgId = results[0].orgId;
+            connection.query("insert into OrgMembers (username, orgId) values (?, ?);", [userAccount.username, orgId], function (error, results, fields) {
+                if (error) throw error;
+            })
+        }
     })
 })
+
+app.post("/create-org", encoder, function (req, res) {
+    var orgName = req.body.orgName;
+
+    connection.query("insert into Organizations (adminUsername, orgName) values (?, ?);", [userAccount.username, orgName], function (error, results, fields) {
+        if (error) throw error;
+    })
+
+    connection.query(`insert into OrgMembers (username, orgId) values (?, (select orgId from Organizations where orgName = "${orgName}"));`, [userAccount.username],
+        function (error, results, fields) {
+            if (error) throw error;
+        })
+})
+
 // function doesUsernameExist(username) {
 //     var answer = false;
 //     connection.query("select username from UserAccounts where username= ?;", [username], function (error, results, fields) {
@@ -115,6 +164,10 @@ class User {
         this.orgList = [];
         this.relationshipList = [];
     }
+
+    addToOrgList(org) {
+        this.orgList.push(org)
+    }
 }
 
 class Org {
@@ -127,13 +180,13 @@ class Org {
 }
 
 class Relationship {
-    constructor(relationshipID, mentor, mentee, startDate, endDate=null, orgID) {
+    constructor(relationshipID, mentor, mentee, startDate, endDate = null, orgID) {
         this.relationshipID = relationshipID;
         this.mentor = mentor;
         this.mentee = mentee;
         this.orgID = orgID;
         this.goalList = [];
-        
+
         this.startDate = [];
         startDate[0] = startDate.getFullYear();
         startDate[1] = startDate.getMonth() + 1;
@@ -186,7 +239,7 @@ class Comment {
 }
 
 class Step {
-    constructor(stepID, stepText, completed=false, goalID) {
+    constructor(stepID, stepText, completed = false, goalID) {
         this.stepID = stepID;
         this.stepText = stepText;
         this.completed = completed;
