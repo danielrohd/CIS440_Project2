@@ -86,15 +86,8 @@ app.get("/views/welcome", function (req, res) {
     connection.query("select * from Organizations where orgId in (select orgId from OrgMembers where username = ?)", [userAccount.username], function (error, results, fields) {
         if (error) throw error;
         results.forEach(element => userAccount.addToOrgList(new Org(element.orgId, element.orgName, element.adminUsername)));
-        console.log(userAccount.orgList)
-        // orgs are pushed to the list, but currently dont render on the page, not sure whats broken
-        // currently the logs on 93/94 print before this one on 89, so the page is rendering before the query runs
-        // not sure why its out of order
 
-        console.log(userAccount.orgList)
-        console.log(userAccount)
-        // this is logging an empty list, unsure why, it logs as full earlier in the program
-
+        // not sure why all this has to be inside the query function but it doesnt work if it isnt
         res.render('organization_home', {
             userAccount: userAccount,
         })
@@ -112,6 +105,17 @@ app.post("/join-org", encoder, function (req, res) {
             var orgId = results[0].orgId;
             connection.query("insert into OrgMembers (username, orgId) values (?, ?);", [userAccount.username, orgId], function (error, results, fields) {
                 if (error) throw error;
+                connection.query("select * from Organizations where orgName = ?;", [orgName], function (error, results, fields) {
+                    if (error) throw error;
+                    userAccount.addToOrgList(new Org(results[0].orgId, results[0].orgName, results[0].adminUsername));
+                    res.render('organization_home', {
+                        userAccount: userAccount,
+                    })
+                })
+            })
+        } else {
+            res.render('organization_home', {
+                userAccount: userAccount,
             })
         }
     })
@@ -127,6 +131,14 @@ app.post("/create-org", encoder, function (req, res) {
     connection.query(`insert into OrgMembers (username, orgId) values (?, (select orgId from Organizations where orgName = "${orgName}"));`, [userAccount.username],
         function (error, results, fields) {
             if (error) throw error;
+            connection.query("select * from Organizations where orgName = ?;", [orgName], function (error, results, fields) {
+                if (error) throw error;
+                userAccount.addToOrgList(new Org(results[0].orgId, results[0].orgName, results[0].adminUsername));
+                res.render('organization_home', {
+                    userAccount: userAccount,
+                })
+            })
+
         })
 })
 
