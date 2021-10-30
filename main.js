@@ -75,19 +75,13 @@ app.post("/create-account", encoder, function (req, res) {
 
 })
 
-// app.get("/create-account", encoder, function(req, res)  {
-//     res.render('organization_home', {
-//         userAccount: userAccount
-//     })
-// })
-
 //when login is success
 app.get("/views/welcome", function (req, res) {
     connection.query("select * from Organizations where orgId in (select orgId from OrgMembers where username = ?)", [userAccount.username], function (error, results, fields) {
         if (error) throw error;
         results.forEach(element => userAccount.addToOrgList(new Org(element.orgId, element.orgName, element.adminUsername)));
 
-        // not sure why all this has to be inside the query function but it doesnt work if it isnt
+        // not sure why all this has to be inside the query function but it doesnt work if it isnt in here
         res.render('organization_home', {
             userAccount: userAccount,
         })
@@ -99,12 +93,15 @@ app.get("/views/welcome", function (req, res) {
 app.post("/join-org", encoder, function (req, res) {
     var orgName = req.body.orgName;
 
+    // seeing if org exists
     connection.query("select orgName, orgId from Organizations where orgName = ?", [orgName], function (error, results, fields) {
         if (error) throw error;
         if (results.length > 0) {
             var orgId = results[0].orgId;
+            // inserting user into org if it does exist
             connection.query("insert into OrgMembers (username, orgId) values (?, ?);", [userAccount.username, orgId], function (error, results, fields) {
                 if (error) throw error;
+                // selecting the orgs full info to add it into the javascript variable
                 connection.query("select * from Organizations where orgName = ?;", [orgName], function (error, results, fields) {
                     if (error) throw error;
                     userAccount.addToOrgList(new Org(results[0].orgId, results[0].orgName, results[0].adminUsername));
@@ -124,13 +121,16 @@ app.post("/join-org", encoder, function (req, res) {
 app.post("/create-org", encoder, function (req, res) {
     var orgName = req.body.orgName;
 
+    // creating the org in the database
     connection.query("insert into Organizations (adminUsername, orgName) values (?, ?);", [userAccount.username, orgName], function (error, results, fields) {
         if (error) throw error;
     })
 
+    // adding the creator as a member of the org
     connection.query(`insert into OrgMembers (username, orgId) values (?, (select orgId from Organizations where orgName = "${orgName}"));`, [userAccount.username],
         function (error, results, fields) {
             if (error) throw error;
+            // selecting the full org info to add it to a javascript object
             connection.query("select * from Organizations where orgName = ?;", [orgName], function (error, results, fields) {
                 if (error) throw error;
                 userAccount.addToOrgList(new Org(results[0].orgId, results[0].orgName, results[0].adminUsername));
