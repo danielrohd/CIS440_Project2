@@ -10,14 +10,31 @@
 </head>
 
 <body>
-    <h1><%= userAccount.first %>'s Organizations</h1>
+    <h1>
+        <%= userAccount.first %>'s Organizations
+    </h1>
     <ul>
-        <% userAccount.orgList.forEach(org => { %>
+        <% userAccount.orgList.forEach(org=> { %>
             <li>
                 <%= org.name %>
             </li>
-        <% }); %>
+            <% }); %>
     </ul>
+
+
+    <!-- lets you select an org, going to make this move to org page to create relationships but that isnt implemented yet -->
+    <form action="/org-page" method="POST" id="orgChoice">
+        <select name="orgChoice" id="orgChoice">
+            <% userAccount.orgList.forEach(org=> { %>
+                <option value="<%= org.name %>">
+                    <%= org.name %>
+                </option>
+                <% }); %>
+        </select>
+        <button type="submit">
+            Select Org
+        </button>
+    </form>
 
     <h1>Join an Organization</h1>
     <div class="main">

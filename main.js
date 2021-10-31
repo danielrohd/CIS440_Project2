@@ -142,6 +142,17 @@ app.post("/create-org", encoder, function (req, res) {
         })
 })
 
+// will take user to an org page, where they can view their relationships, and if they are admin, can create new ones
+app.post("/org-page", encoder, function (req, res) {
+    // testing to make sure we can pull a value back to javascript, it works
+    var selectedOrg = req.body.orgChoice;
+    console.log(selectedOrg)
+
+    res.render('organization_home', {
+        userAccount: userAccount,
+    })
+})
+
 // function doesUsernameExist(username) {
 //     var answer = false;
 //     connection.query("select username from UserAccounts where username= ?;", [username], function (error, results, fields) {
