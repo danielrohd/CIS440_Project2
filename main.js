@@ -81,11 +81,18 @@ app.get("/views/welcome", function (req, res) {
         if (error) throw error;
         results.forEach(element => userAccount.addToOrgList(new Org(element.orgId, element.orgName, element.adminUsername)));
 
-        // not sure why all this has to be inside the query function but it doesnt work if it isnt in here
-        res.render('organization_home', {
-            userAccount: userAccount,
+        connection.query("select * from Relationships where mentee= ? or mentor= ?;", [userAccount.username, userAccount.username], function (error, results, fields) {
+            if (error) throw error;
+            results.forEach(element => userAccount.addToRelList(new Relationship(element.relationshipID, element.mentor, element.mentee, element.startDate, element.endDate, element.orgID)));
+
+            // not sure why all this has to be inside the query function but it doesnt work if it isnt in here
+            res.render('organization_home', {
+                userAccount: userAccount,
+            })
+            app.use("/welcome.css", express.static("welcome.css"));
         })
-        app.use("/welcome.css", express.static("welcome.css"));
+
+
     })
 
 })
@@ -147,10 +154,18 @@ app.post("/org-page", encoder, function (req, res) {
     // testing to make sure we can pull a value back to javascript, it works
     var selectedOrg = req.body.orgChoice;
     console.log(selectedOrg)
-
-    res.render('organization_home', {
-        userAccount: userAccount,
+    connection.query("select * from Organizations where orgName = ?;", [selectedOrg], function (error, results, fields) {
+        if (error) throw error;
+        var orgId = results[0].orgId
+        res.render('org_page', {
+            userAccount: userAccount,
+            selectedOrg: selectedOrg,
+            orgId: orgId
+        })
     })
+
+
+
 })
 
 // function doesUsernameExist(username) {
@@ -191,6 +206,10 @@ class User {
     addToOrgList(org) {
         this.orgList.push(org)
     }
+
+    addToRelList(rel) {
+        this.relationshipList.push(rel)
+    }
 }
 
 class Org {
@@ -216,11 +235,14 @@ class Relationship {
         startDate[2] = startDate.getDate();
         this.startDateString = `${startDate[1]}/${startDate[2]}/${startDate[0]}`
 
-        this.endDate = [];
-        endDate[0] = endDate.getFullYear();
-        endDate[1] = endDate.getMonth() + 1;
-        endDate[2] = endDate.getDate();
-        this.endDateString = `${endDate[1]}/${endDate[2]}/${endDate[0]}`
+        if (endDate != null) {
+            this.endDate = [];
+            endDate[0] = endDate.getFullYear();
+            endDate[1] = endDate.getMonth() + 1;
+            endDate[2] = endDate.getDate();
+            this.endDateString = `${endDate[1]}/${endDate[2]}/${endDate[0]}`
+        }
+
     }
 }
 

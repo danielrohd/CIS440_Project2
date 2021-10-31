@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="../createaccount.css">
+    <script src="../main.js"></script>
+    <title>Create an Organization</title>
+</head>
+
+<body>
+    <h1>
+        <%= selectedOrg %> <br>
+            <%= userAccount.first %>'s Relationships
+    </h1>
+    <ul>
+        <% userAccount.relationshipList.forEach(rel=> { %>
+            <% if (rel.orgID==orgId) { %>
+                <li>
+                    Mentor: <%= rel.mentor %> | Mentee: <%= rel.mentee %>
+                </li>
+                <% } %>
+                    <% }); %>
+    </ul>
+
+
+    <!-- lets you select an org, going to make this move to org page to create relationships but that isnt implemented yet -->
+    <form action="/org-page" method="POST" id="orgChoice">
+        <select name="orgChoice" id="orgChoice">
+            <% userAccount.orgList.forEach(org=> { %>
+                <option value="<%= org.name %>">
+                    <%= org.name %>
+                </option>
+                <% }); %>
+        </select>
+        <button type="submit">
+            Select Org
+        </button>
+    </form>
+
+</body>
+
+</html>
