@@ -145,7 +145,6 @@ app.post("/create-org", encoder, function (req, res) {
                     userAccount: userAccount,
                 })
             })
-
         })
 })
 
@@ -154,7 +153,9 @@ app.post("/org-page", encoder, function (req, res) {
     // testing to make sure we can pull a value back to javascript, it works
     var selectedOrg = req.body.orgChoice;
     console.log(selectedOrg)
-    connection.query("select * from Organizations where orgName = ?;", [selectedOrg], function (error, results, fields) {
+
+    // getting the orgId so it can be referenced in the page to print only relationships with that org
+    connection.query("select orgId from Organizations where orgName = ?;", [selectedOrg], function (error, results, fields) {
         if (error) throw error;
         var orgId = results[0].orgId
         res.render('org_page', {
@@ -163,9 +164,6 @@ app.post("/org-page", encoder, function (req, res) {
             orgId: orgId
         })
     })
-
-
-
 })
 
 // function doesUsernameExist(username) {
@@ -235,6 +233,8 @@ class Relationship {
         startDate[2] = startDate.getDate();
         this.startDateString = `${startDate[1]}/${startDate[2]}/${startDate[0]}`
 
+        this.endDate = [];
+        this.endDateString = "";
         if (endDate != null) {
             this.endDate = [];
             endDate[0] = endDate.getFullYear();
@@ -244,10 +244,22 @@ class Relationship {
         }
 
     }
+
+    addToGoalList(goal) {
+        this.goalList.push(goal)
+    }
+
+    addEndDate(date) {
+        this.endDate = [];
+        endDate[0] = date.getFullYear();
+        endDate[1] = date.getMonth() + 1;
+        endDate[2] = date.getDate();
+        this.endDateString = `${endDate[1]}/${endDate[2]}/${endDate[0]}`
+    }
 }
 
 class Goal {
-    constructor(goalID, relationshipID, goalInfo, dueDate, startDate, orgID) {
+    constructor(goalID, relationshipID, goalInfo, dueDate = null, startDate, orgID) {
         this.goalID = goalID;
         this.relationshipID = relationshipID;
         this.goalInfo = goalInfo;
@@ -255,17 +267,36 @@ class Goal {
         this.commentList = [];
         this.stepList = [];
 
-        this.dueDate = [];
-        dueDate[0] = dueDate.getFullYear();
-        dueDate[1] = dueDate.getMonth() + 1;
-        dueDate[2] = dueDate.getDate();
-        this.dueDateString = `${dueDate[1]}/${dueDate[2]}/${dueDate[0]}`
+        if (dueDate != null) {
+            this.dueDate = [];
+            dueDate[0] = dueDate.getFullYear();
+            dueDate[1] = dueDate.getMonth() + 1;
+            dueDate[2] = dueDate.getDate();
+            this.dueDateString = `${dueDate[1]}/${dueDate[2]}/${dueDate[0]}`
+        }
+
 
         this.startDate = [];
         startDate[0] = startDate.getFullYear();
         startDate[1] = startDate.getMonth() + 1;
         startDate[2] = startDate.getDate();
         this.startDateString = `${startDate[1]}/${startDate[2]}/${startDate[0]}`
+    }
+
+    addToCommentList(comment) {
+        this.commentList.push(comment);
+    }
+
+    addToStepList(step) {
+        this.stepList.push(step);
+    }
+
+    addDueDate(date) {
+        this.dueDate = [];
+        dueDate[0] = date.getFullYear();
+        dueDate[1] = date.getMonth() + 1;
+        dueDate[2] = date.getDate();
+        this.dueDateString = `${dueDate[1]}/${dueDate[2]}/${dueDate[0]}`
     }
 }
 
@@ -284,7 +315,7 @@ class Comment {
 }
 
 class Step {
-    constructor(stepID, stepText, completed = false, goalID) {
+    constructor(stepID, stepText, completed = 0, goalID) {
         this.stepID = stepID;
         this.stepText = stepText;
         this.completed = completed;
