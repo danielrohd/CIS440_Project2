@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="gpage.css">
+  <script src="main.js"></script>
+  <title>Goals</title>
+</head>
+
+<body>
+  <div class="main">
+    <p class="sign" align="center">Goals</p>
+    <button class="open-button" onclick="openForm1()">Add Goal</button>
+
+    <div class="form-popup" id="myForm">
+        <form action="/action_page.php" class="form-container">
+            <h1>New Goal</h1>
+
+            <label for="goal"><b>Goal Name</b></label>
+            <input type="text" placeholder="Goal Name" name="goal" required>
+
+            <label for="sub1"><b>Subgoal 1</b></label>
+            <input type="text" placeholder="Subgoal 1" name="sub1" required>
+
+            <label for="sub2"><b>Subgoal 2</b></label>
+            <input type="text" placeholder="Subgoal 2" name="sub2" required>
+
+            <label for="sub2"><b>Subgoal 3</b></label>
+            <input type="text" placeholder="Subgoal 3" name="sub3" required>
+
+            <button type="submit" class="btn">Add Goal</button>
+            <button type="button" class="btn cancel" onclick="closeForm1()">Close</button>
+        </form>
+    </div>
+    
+
+  </div>
+
+</body>
+
+</html>
