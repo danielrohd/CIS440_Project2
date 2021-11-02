@@ -24,6 +24,33 @@
                     <% }); %>
     </ul>
 
+    <form action="/display-goals" method="POST" id="displayGoals">
+        <% userAccount.relationshipList.forEach(rel=> { %>
+            <% if (rel.orgID==orgId) { %>
+                <label for="<%= rel.relationshipID %>">
+                    Mentor: <%= rel.mentor %> | Mentee: <%= rel.mentee %>
+                </label>
+                <input type="radio" name="relId" id="<%= rel.relationshipID %>" value="<%= rel.relationshipID %>">
+                <br> 
+                <% } %>
+                    <% }); %>
+
+        <button type="submit">Select Relationship</button>
+        
+    </form>
+
+    <% userAccount.relationshipList.forEach(rel=> { %>
+        <% if (rel.relationshipID==relationshipID) { %>
+            <div>
+                <% rel.goalList.forEach(goal => { %>
+                <p>Test<%= goal.goalInfo %></p>
+                
+            <% }) %>
+                <% } %>
+                    <% }); %>
+            </div>
+            
+
     <% if (userAccount.username==adminUsername) { %>
         <form action="/create-relationship" method="POST" id="createRelationship">
             <select name="mentor" id="mentor">

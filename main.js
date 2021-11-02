@@ -84,7 +84,6 @@ app.get("/views/welcome", function (req, res) {
         connection.query("select * from Relationships where mentee= ? or mentor= ?;", [userAccount.username, userAccount.username], function (error, results, fields) {
             if (error) throw error;
             results.forEach(element => userAccount.addToRelList(new Relationship(element.relationshipID, element.mentor, element.mentee, element.startDate, element.endDate, element.orgID)));
-
             userAccount.orgList.forEach(element =>
                 connection.query("select username from OrgMembers where orgID = ?;", [element.orgID], function (error, results, fields) {
                     if (error) throw error;
@@ -159,6 +158,7 @@ app.post("/create-org", encoder, function (req, res) {
 var orgId;
 var adminUsername;
 var selectedOrg;
+var relationshipID;
 
 // will take user to an org page, where they can view their relationships, and if they are admin, can create new ones
 app.post("/org-page", encoder, function (req, res) {
@@ -176,7 +176,8 @@ app.post("/org-page", encoder, function (req, res) {
             userAccount: userAccount,
             selectedOrg: selectedOrg,
             orgId: orgId,
-            adminUsername: adminUsername
+            adminUsername: adminUsername,
+            relationshipID: relationshipID
         })
     })
 })
@@ -193,7 +194,8 @@ app.post("/create-relationship", encoder, function (req, res) {
             userAccount: userAccount,
             selectedOrg: selectedOrg,
             orgId: orgId,
-            adminUsername: adminUsername
+            adminUsername: adminUsername,
+            relationshipID: relationshipID
         })
     } else {
         // checks if the relationship already exists
@@ -204,7 +206,8 @@ app.post("/create-relationship", encoder, function (req, res) {
                     userAccount: userAccount,
                     selectedOrg: selectedOrg,
                     orgId: orgId,
-                    adminUsername: adminUsername
+                    adminUsername: adminUsername,
+                    relationshipID: relationshipID
                 })
             } else {
                 // if the relationship doesnt exist, creates it
@@ -220,7 +223,8 @@ app.post("/create-relationship", encoder, function (req, res) {
                             userAccount: userAccount,
                             selectedOrg: selectedOrg,
                             orgId: orgId,
-                            adminUsername: adminUsername
+                            adminUsername: adminUsername,
+                            relationshipID: relationshipID
                         })
                     })
                     
@@ -228,6 +232,28 @@ app.post("/create-relationship", encoder, function (req, res) {
             }
         })
     }
+})
+
+app.post("/display-goals", encoder, function (req, res) {
+    relationshipID = req.body.relId
+    console.log(relationshipID)
+    userAccount.relationshipList.forEach(rel => if (relationshipID == rel.relationshipID))
+    userAccount.relationshipList[relationshipID]
+
+
+
+    connection.query("select * from Goals where relationshipID = ?;", [relationshipID], function (error, results, fields) {
+        if (error) throw error;
+        results.forEach(element => )
+    })
+
+    res.render('org_page', {
+        userAccount: userAccount,
+        selectedOrg: selectedOrg,
+        orgId: orgId,
+        adminUsername: adminUsername,
+        relationshipID: relationshipID
+    })
 })
 
 // function doesUsernameExist(username) {
@@ -367,10 +393,11 @@ class Goal {
 }
 
 class Comment {
-    constructor(commentID, commentText, commentDate, goalID) {
+    constructor(commentID, commentText, commentDate, goalID, author) {
         this.commentID = commentID;
         this.commentText = commentText;
         this.goalID = goalID;
+        this.author = author;
 
         this.commentDate = [];
         commentDate[0] = commentDate.getFullYear();
@@ -415,10 +442,10 @@ class Step {
 //   document.getElementById("defaultOpen").click();
 
 
-function openForm1() {
-    document.getElementById("myForm").style.display = "block";
-  }
+// function openForm1() {
+//     document.getElementById("myForm").style.display = "block";
+//   }
   
-  function closeForm1() {
-    document.getElementById("myForm").style.display = "none";
-  }
+//   function closeForm1() {
+//     document.getElementById("myForm").style.display = "none";
+//   }
