@@ -181,11 +181,13 @@ app.post("/org-page", encoder, function (req, res) {
     })
 })
 
+// allows the user to create a relationship, if they are the admin of the org
 app.post("/create-relationship", encoder, function (req, res) {
     var mentor = req.body.mentor;
     var mentee = req.body.mentee;
     console.log(mentee, mentor)
 
+    // checks if the mentor and mentee aren't the same
     if (mentor == mentee) {
         res.render('org_page', {
             userAccount: userAccount,
@@ -194,6 +196,7 @@ app.post("/create-relationship", encoder, function (req, res) {
             adminUsername: adminUsername
         })
     } else {
+        // checks if the relationship already exists
         connection.query("select * from Relationships where mentee= ? and mentor= ? and orgID= ?;", [mentee, mentor, orgId], function (error, results, fields) {
             if  (error) throw error;
             if (results.length > 0) {
@@ -204,10 +207,12 @@ app.post("/create-relationship", encoder, function (req, res) {
                     adminUsername: adminUsername
                 })
             } else {
+                // if the relationship doesnt exist, creates it
                 var today = new Date();
                 var date = today.getFullYear() + "-" + (today.getMonth()+1) + "-" + today.getDate();
                 connection.query("insert into Relationships (mentor, mentee, startDate, orgID) values (?, ?, ?, ?);", [mentor, mentee, date, orgId], function (error, results, fields) {
                     if (error) throw error;
+                    // adds the relationship to the proper list
                     connection.query("select * from Relationships where mentor = ? and mentee = ? and orgID = ?;", [mentor, mentee, orgId], function (error, results, fields) {
                         if (error) throw error;
                         userAccount.addToRelList(new Relationship(results[0].relationshipID, results[0].mentor, results[0].mentee, results[0].startDate, results[0].endDate, results[0].orgID));
