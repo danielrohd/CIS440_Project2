@@ -24,20 +24,51 @@
                     <% }); %>
     </ul>
 
+    <% if (userAccount.username==adminUsername) { %>
+        <form action="/create-relationship" method="POST" id="createRelationship">
+            <select name="mentor" id="mentor">
+                <% userAccount.orgList.forEach(org=> { %>
+                    <% if (org.orgID==orgId) { %>
+                        <% org.userList.forEach(user=> { %>
+                            <option value="<%= user %>">
+                                <%= user %>
+                            </option>
+                            <% }) %>
 
-    <!-- lets you select an org, you can then see your relationships and create them if you're the admin -->
-    <form action="/org-page" method="POST" id="orgChoice">
-        <select name="orgChoice" id="orgChoice">
-            <% userAccount.orgList.forEach(org=> { %>
-                <option value="<%= org.name %>">
-                    <%= org.name %>
-                </option>
-                <% }); %>
-        </select>
-        <button type="submit">
-            Select Org
-        </button>
-    </form>
+                                <% } %>
+                                    <% }) %>
+            </select>
+
+            <select name="mentee" id="mentee">
+                <% userAccount.orgList.forEach(org=> { %>
+                    <% if (org.orgID==orgId) { %>
+                        <% org.userList.forEach(user=> { %>
+                            <option value="<%= user %>">
+                                <%= user %>
+                            </option>
+                            <% }) %>
+
+                                <% } %>
+                                    <% }) %>
+            </select>
+
+            <button type="submit">Create Relationship</button>
+        </form>
+        <% } %>
+
+            <!-- lets you select an org, you can then see your relationships and create them if you're the admin -->
+            <form action="/org-page" method="POST" id="orgChoice">
+                <select name="orgChoice" id="orgChoice">
+                    <% userAccount.orgList.forEach(org=> { %>
+                        <option value="<%= org.name %>">
+                            <%= org.name %>
+                        </option>
+                        <% }); %>
+                </select>
+                <button type="submit">
+                    Select Org
+                </button>
+            </form>
 
 </body>
 

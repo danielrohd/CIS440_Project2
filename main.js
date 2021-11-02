@@ -85,10 +85,18 @@ app.get("/views/welcome", function (req, res) {
             if (error) throw error;
             results.forEach(element => userAccount.addToRelList(new Relationship(element.relationshipID, element.mentor, element.mentee, element.startDate, element.endDate, element.orgID)));
 
+            userAccount.orgList.forEach(element =>
+                connection.query("select username from OrgMembers where orgID = ?;", [element.orgID], function (error, results, fields) {
+                    if (error) throw error;
+                    console.log(element)
+                    results.forEach(e=> element.addToUserList(e.username));
+                    console.log("here");
+                }))
             // not sure why all this has to be inside the query function but it doesnt work if it isnt in here
             res.render('organization_home', {
                 userAccount: userAccount,
             })
+            console.log(userAccount.orgList.userList)
             app.use("/welcome.css", express.static("welcome.css"));
         })
 
@@ -148,22 +156,78 @@ app.post("/create-org", encoder, function (req, res) {
         })
 })
 
+var orgId;
+var adminUsername;
+var selectedOrg;
+
 // will take user to an org page, where they can view their relationships, and if they are admin, can create new ones
 app.post("/org-page", encoder, function (req, res) {
     // testing to make sure we can pull a value back to javascript, it works
-    var selectedOrg = req.body.orgChoice;
-    console.log(selectedOrg)
+    selectedOrg = req.body.orgChoice;
+    // console.log(selectedOrg)
+    console.log(userAccount.orgList[0].userList)
 
     // getting the orgId so it can be referenced in the page to print only relationships with that org
-    connection.query("select orgId from Organizations where orgName = ?;", [selectedOrg], function (error, results, fields) {
+    connection.query("select orgId, adminUsername from Organizations where orgName = ?;", [selectedOrg], function (error, results, fields) {
         if (error) throw error;
-        var orgId = results[0].orgId
+        orgId = results[0].orgId
+        adminUsername = results[0].adminUsername;
         res.render('org_page', {
             userAccount: userAccount,
             selectedOrg: selectedOrg,
-            orgId: orgId
+            orgId: orgId,
+            adminUsername: adminUsername
         })
     })
+})
+
+// allows the user to create a relationship, if they are the admin of the org
+app.post("/create-relationship", encoder, function (req, res) {
+    var mentor = req.body.mentor;
+    var mentee = req.body.mentee;
+    console.log(mentee, mentor)
+
+    // checks if the mentor and mentee aren't the same
+    if (mentor == mentee) {
+        res.render('org_page', {
+            userAccount: userAccount,
+            selectedOrg: selectedOrg,
+            orgId: orgId,
+            adminUsername: adminUsername
+        })
+    } else {
+        // checks if the relationship already exists
+        connection.query("select * from Relationships where mentee= ? and mentor= ? and orgID= ?;", [mentee, mentor, orgId], function (error, results, fields) {
+            if  (error) throw error;
+            if (results.length > 0) {
+                res.render('org_page', {
+                    userAccount: userAccount,
+                    selectedOrg: selectedOrg,
+                    orgId: orgId,
+                    adminUsername: adminUsername
+                })
+            } else {
+                // if the relationship doesnt exist, creates it
+                var today = new Date();
+                var date = today.getFullYear() + "-" + (today.getMonth()+1) + "-" + today.getDate();
+                connection.query("insert into Relationships (mentor, mentee, startDate, orgID) values (?, ?, ?, ?);", [mentor, mentee, date, orgId], function (error, results, fields) {
+                    if (error) throw error;
+                    // adds the relationship to the proper list
+                    connection.query("select * from Relationships where mentor = ? and mentee = ? and orgID = ?;", [mentor, mentee, orgId], function (error, results, fields) {
+                        if (error) throw error;
+                        userAccount.addToRelList(new Relationship(results[0].relationshipID, results[0].mentor, results[0].mentee, results[0].startDate, results[0].endDate, results[0].orgID));
+                        res.render('org_page', {
+                            userAccount: userAccount,
+                            selectedOrg: selectedOrg,
+                            orgId: orgId,
+                            adminUsername: adminUsername
+                        })
+                    })
+                    
+                })
+            }
+        })
+    }
 })
 
 // function doesUsernameExist(username) {
@@ -217,6 +281,10 @@ class Org {
         this.adminUsername = adminUsername;
         this.userList = [];
     }
+
+    addToUserList(user) {
+        this.userList.push(user);
+    }
 }
 
 class Relationship {
@@ -233,8 +301,6 @@ class Relationship {
         startDate[2] = startDate.getDate();
         this.startDateString = `${startDate[1]}/${startDate[2]}/${startDate[0]}`
 
-        this.endDate = [];
-        this.endDateString = "";
         if (endDate != null) {
             this.endDate = [];
             endDate[0] = endDate.getFullYear();
@@ -323,27 +389,36 @@ class Step {
     }
 }
 
-//new stuff for the homepage things
-function openPage(pageName, elmnt, color) {
-    // Hide all elements with class="tabcontent" by default */
-    var i, tabcontent, tablinks;
-    tabcontent = document.getElementsByClassName("tabcontent");
-    for (i = 0; i < tabcontent.length; i++) {
-      tabcontent[i].style.display = "none";
-    }
-  
-    // Remove the background color of all tablinks/buttons
-    tablinks = document.getElementsByClassName("tablink");
-    for (i = 0; i < tablinks.length; i++) {
-      tablinks[i].style.backgroundColor = "";
-    }
-  
-    // Show the specific tab content
-    document.getElementById(pageName).style.display = "block";
-  
-    // Add the specific color to the button used to open the tab content
-    elmnt.style.backgroundColor = color;
+// //new stuff for the homepage things
+// function openPage(pageName, elmnt, color) {
+//     // Hide all elements with class="tabcontent" by default */
+//     var i, tabcontent, tablinks;
+//     tabcontent = document.getElementsByClassName("tabcontent");
+//     for (i = 0; i < tabcontent.length; i++) {
+//       tabcontent[i].style.display = "none";
+//     }
+
+//     // Remove the background color of all tablinks/buttons
+//     tablinks = document.getElementsByClassName("tablink");
+//     for (i = 0; i < tablinks.length; i++) {
+//       tablinks[i].style.backgroundColor = "";
+//     }
+
+//     // Show the specific tab content
+//     document.getElementById(pageName).style.display = "block";
+
+//     // Add the specific color to the button used to open the tab content
+//     elmnt.style.backgroundColor = color;
+//   }
+
+//   // Get the element with id="defaultOpen" and click on it
+//   document.getElementById("defaultOpen").click();
+
+
+function openForm1() {
+    document.getElementById("myForm").style.display = "block";
   }
   
-  // Get the element with id="defaultOpen" and click on it
-  document.getElementById("defaultOpen").click();
+  function closeForm1() {
+    document.getElementById("myForm").style.display = "none";
+  }
