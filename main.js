@@ -91,6 +91,11 @@ app.get("/views/welcome", function (req, res) {
                     results.forEach(e=> element.addToUserList(e.username));
                     console.log("here");
                 }))
+            
+            userAccount.relationshipList.forEach(element => 
+                connection.query("select * from Goals where relationshipID = ?;", [element.relationshipID], function (error, results, fields) {
+                    results.forEach(e=> element.addToGoalList(new Goal(e.goalID, e.relationshipID, e.goalInfo, e.dueDate, e.startDate, e.orgId)));
+                }))
             // not sure why all this has to be inside the query function but it doesnt work if it isnt in here
             res.render('organization_home', {
                 userAccount: userAccount,
@@ -237,15 +242,6 @@ app.post("/create-relationship", encoder, function (req, res) {
 app.post("/display-goals", encoder, function (req, res) {
     relationshipID = req.body.relId
     console.log(relationshipID)
-    userAccount.relationshipList.forEach(rel => if (relationshipID == rel.relationshipID))
-    userAccount.relationshipList[relationshipID]
-
-
-
-    connection.query("select * from Goals where relationshipID = ?;", [relationshipID], function (error, results, fields) {
-        if (error) throw error;
-        results.forEach(element => )
-    })
 
     res.render('org_page', {
         userAccount: userAccount,
