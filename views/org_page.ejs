@@ -60,6 +60,7 @@
                     <% }) %>
                     <form action="/create-comment" method="POST">
                         <li><input type="text"id="newCommentId" name="newComment"></li>
+                        <input type="hidden" name="goalID" value="<%= goal.goalID %>">
 
                         <button type="submit">Add Comment</button>
                     </form>

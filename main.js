@@ -323,20 +323,21 @@ app.post("/create-goal", encoder, function (req, res) {
 
 app.post("/create-comment", encoder, function (req, res) {
     var commentText = req.body.newComment;
-    console.log(commentText);
+    var tempGoalID = req.body.goalID;
+    console.log(commentText, tempGoalID);
     var today = new Date();
     var date = today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate();
 
 
-    connection.query("insert into GoalComments (commentText, commentDate, goalID, authorUsername) values (?, ?,?,?);", [commentText, date, goalID, userAccount.username], function (error, results, fields) {
+    connection.query("insert into GoalComments (commentText, commentDate, goalID, authorUsername) values (?, ?,?,?);", [commentText, date, tempGoalID, userAccount.username], function (error, results, fields) {
         if (error) throw error;
-        connection.query("select * from GoalComments where commentText = ? and commentDate = ? and goalID = ? and authorUsername = ?;", [commentText, date, goalID, userAccount.username], function (error, results, fields) {
+        connection.query("select * from GoalComments where commentText = ? and commentDate = ? and goalID = ? and authorUsername = ?;", [commentText, date, tempGoalID, userAccount.username], function (error, results, fields) {
             if (error) throw error;
             userAccount.relationshipList.forEach(el => {
                 if (el.relationshipID == relationshipID) {
 
                     el.goalList.forEach(goal => {
-                        if (goal.goalID == goalID) {
+                        if (goal.goalID == tempGoalID) {
                             // adding the step object to the list
                             goal.addToCommentList(new Comment(results[0].commentID, results[0].commentText, results[0].commentDate, results[0].goalID, results[0].authorUsername))
                             res.render('org_page', {
