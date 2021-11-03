@@ -48,11 +48,22 @@
                     <% goal.stepList.forEach(step => { %>
                         <li>Step: <%= step.stepText %> | <%= step.completedText %></li>
                     <% }) %>
+                    <form action="/create-step" method="POST">
+                        <li><input type="text"id="newStepId" name="newStep"></li>
+
+                        <button type="submit">Add Goal Step</button>
+                    </form>
                 </ul>
                 <ul>
                     <% goal.commentList.forEach(comment => { %>
                         <li><%= comment.author %> - <%= comment.commentText %> (<%=comment.commentDateString %>)</li>
                     <% }) %>
+                    <form action="/create-comment" method="POST">
+                        <li><input type="text"id="newCommentId" name="newComment"></li>
+
+                        <button type="submit">Add Comment</button>
+                    </form>
+                    
                 </ul>
                 
                 
