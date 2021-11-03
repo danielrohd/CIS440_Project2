@@ -44,12 +44,40 @@
             <div>
                 <% rel.goalList.forEach(goal => { %>
                 <p><%= goal.goalInfo %></p>
+                <ul>
+                    <% goal.stepList.forEach(step => { %>
+                        <li>Step: <%= step.stepText %> | <%= step.completedText %></li>
+                    <% }) %>
+                </ul>
+                <ul>
+                    <% goal.commentList.forEach(comment => { %>
+                        <li><%= comment.author %> - <%= comment.commentText %> (<%=comment.commentDateString %>)</li>
+                    <% }) %>
+                </ul>
+                
                 
             <% }) %>
+
+                <form action="/create-goal" method="POST" id="createGoal">
+                    <label for="goalInfo">Goal Description: </label>
+                    <input type="text" name="goalInfo" id="goalInfo">
+                    <br>
+
+                    <label for="dueDate">Due Date: </label>
+                    <input type="date" name="dueDate" id="dueDate">
+                    <br>
+
+                    <label for="step1">Step 1: </label>
+                    <input type="text" name="step1" id="step1">
+
+                    <button type="submit">Create Goal</button>
+                </form>
+
                 <% } %>
                     <% }); %>
             </div>
-            
+    
+    
 
     <% if (userAccount.username==adminUsername) { %>
         <form action="/create-relationship" method="POST" id="createRelationship">

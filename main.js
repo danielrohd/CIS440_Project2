@@ -2,6 +2,8 @@
 const mysql = require("mysql");
 const express = require("express");
 const bodyParser = require("body-parser");
+const e = require("express");
+const { connect } = require("mssql");
 const encoder = bodyParser.urlencoded();
 
 const app = express();
@@ -84,18 +86,34 @@ app.get("/views/welcome", function (req, res) {
         connection.query("select * from Relationships where mentee= ? or mentor= ?;", [userAccount.username, userAccount.username], function (error, results, fields) {
             if (error) throw error;
             results.forEach(element => userAccount.addToRelList(new Relationship(element.relationshipID, element.mentor, element.mentee, element.startDate, element.endDate, element.orgID)));
+            // populating the userlist of each org
             userAccount.orgList.forEach(element =>
                 connection.query("select username from OrgMembers where orgID = ?;", [element.orgID], function (error, results, fields) {
                     if (error) throw error;
                     console.log(element)
-                    results.forEach(e=> element.addToUserList(e.username));
+                    results.forEach(e => element.addToUserList(e.username));
                     console.log("here");
                 }))
-            
-            userAccount.relationshipList.forEach(element => 
+
+
+            // populating the goals list of each relationship
+            userAccount.relationshipList.forEach(element =>
                 connection.query("select * from Goals where relationshipID = ?;", [element.relationshipID], function (error, results, fields) {
-                    results.forEach(e=> element.addToGoalList(new Goal(e.goalID, e.relationshipID, e.goalInfo, e.dueDate, e.startDate, e.orgId)));
-                }))
+                    if (error) throw error;
+                    results.forEach(e => element.addToGoalList(new Goal(e.goalID, e.relationshipID, e.goalInfo, e.dueDate, e.startDate, e.orgId)));
+                    console.log('here1')
+                    element.goalList.forEach(el =>
+                        connection.query("select * from GoalSteps where goalID= ?;", [el.goalID], function (error, results, fields) {
+                            if (error) throw error;
+                            results.forEach(results => el.addToStepList(new Step(results.stepID, results.stepText, results.completed, results.goalID)));
+                        }));
+                    element.goalList.forEach(el =>
+                        connection.query("select * from GoalComments where goalID= ?;", [el.goalID], function (error, results, fields) {
+                            if (error) throw error;
+                            results.forEach(results => el.addToCommentList(new Comment(results.commentID, results.commentText, results.commentDate, results.goalID, results.authorUsername)));
+                        }));
+                }));
+
             // not sure why all this has to be inside the query function but it doesnt work if it isnt in here
             res.render('organization_home', {
                 userAccount: userAccount,
@@ -205,7 +223,7 @@ app.post("/create-relationship", encoder, function (req, res) {
     } else {
         // checks if the relationship already exists
         connection.query("select * from Relationships where mentee= ? and mentor= ? and orgID= ?;", [mentee, mentor, orgId], function (error, results, fields) {
-            if  (error) throw error;
+            if (error) throw error;
             if (results.length > 0) {
                 res.render('org_page', {
                     userAccount: userAccount,
@@ -217,7 +235,7 @@ app.post("/create-relationship", encoder, function (req, res) {
             } else {
                 // if the relationship doesnt exist, creates it
                 var today = new Date();
-                var date = today.getFullYear() + "-" + (today.getMonth()+1) + "-" + today.getDate();
+                var date = today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate();
                 connection.query("insert into Relationships (mentor, mentee, startDate, orgID) values (?, ?, ?, ?);", [mentor, mentee, date, orgId], function (error, results, fields) {
                     if (error) throw error;
                     // adds the relationship to the proper list
@@ -232,7 +250,7 @@ app.post("/create-relationship", encoder, function (req, res) {
                             relationshipID: relationshipID
                         })
                     })
-                    
+
                 })
             }
         })
@@ -250,6 +268,57 @@ app.post("/display-goals", encoder, function (req, res) {
         adminUsername: adminUsername,
         relationshipID: relationshipID
     })
+})
+
+app.post("/create-goal", encoder, function (req, res) {
+    var goalText = req.body.goalInfo;
+    var dueDate = req.body.dueDate;
+    var step1 = req.body.step1;
+    var goalID;
+
+    var today = new Date();
+    var date = today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate();
+
+    // creating new goal
+    connection.query("insert into Goals (relationshipID, goalInfo, dueDate, startDate, orgId) values (?, ?, ?, ?, ?);", [relationshipID, goalText, dueDate, date, orgId],
+        function (error, results, fields) {
+            if (error) throw error;
+            // finding the new goal to create object
+            connection.query("select * from Goals where relationshipID = ? and goalInfo = ? and dueDate = ? and startDate = ? and orgId = ?;", [relationshipID, goalText, dueDate, date, orgId],
+                function (error, results, fields) {
+                    if (error) throw error;
+                    goalID = results[0].goalID;
+                    // finding the right list for the object
+                    userAccount.relationshipList.forEach(el => {
+                        console.log(results)
+                        if (el.relationshipID == relationshipID) {
+                            // adding the goal to the correct list
+                            el.addToGoalList(new Goal(results[0].goalID, results[0].relationshipID, results[0].goalInfo, results[0].dueDate, results[0].startDate, results[0].orgId))
+                            // creating the step for the goal
+                            connection.query("insert into GoalSteps (stepText, completed, goalID) values (?, 0, ?);", [step1, goalID], function (error, results, fields) {
+                                if (error) throw error;
+                                // finding the step to create object
+                                connection.query("select * from GoalSteps where stepText = ? and completed = ? and goalID = ?;", [step1, 0, goalID], function (error, results, fields) {
+                                    // finding the right list for the step
+                                    el.goalList.forEach(goal => {
+                                        if (goal.goalID == goalID) {
+                                            // adding the step object to the list
+                                            goal.addToStepList(new Step(results[0].stepID, results[0].stepText, results[0].completed, results[0].goalID))
+                                            res.render('org_page', {
+                                                userAccount: userAccount,
+                                                selectedOrg: selectedOrg,
+                                                orgId: orgId,
+                                                adminUsername: adminUsername,
+                                                relationshipID: relationshipID
+                                            })
+                                        }
+                                    })
+                                })
+                            })
+                        }
+                    })
+                })
+        })
 })
 
 // function doesUsernameExist(username) {
@@ -361,6 +430,8 @@ class Goal {
             dueDate[1] = dueDate.getMonth() + 1;
             dueDate[2] = dueDate.getDate();
             this.dueDateString = `${dueDate[1]}/${dueDate[2]}/${dueDate[0]}`
+        } else {
+            this.dueDateString = "N/A"
         }
 
 
@@ -399,7 +470,7 @@ class Comment {
         commentDate[0] = commentDate.getFullYear();
         commentDate[1] = commentDate.getMonth() + 1;
         commentDate[2] = commentDate.getDate();
-        this.commentDate = `${commentDate[1]}/${commentDate[2]}/${commentDate[0]}`
+        this.commentDateString = `${commentDate[1]}/${commentDate[2]}/${commentDate[0]}`
     }
 }
 
@@ -409,6 +480,13 @@ class Step {
         this.stepText = stepText;
         this.completed = completed;
         this.goalID = goalID;
+        this.completedText;
+
+        if (this.completed == 0) {
+            this.completedText = "Incomplete"
+        } else {
+            this.completedText = "Complete"
+        }
     }
 }
 
@@ -441,7 +519,7 @@ class Step {
 // function openForm1() {
 //     document.getElementById("myForm").style.display = "block";
 //   }
-  
+
 //   function closeForm1() {
 //     document.getElementById("myForm").style.display = "none";
 //   }
