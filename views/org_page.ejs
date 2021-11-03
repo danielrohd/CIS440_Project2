@@ -50,6 +50,7 @@
                     <% }) %>
                     <form action="/create-step" method="POST">
                         <li><input type="text"id="newStepId" name="newStep"></li>
+                        <input type="hidden" name="goalID" value="<%= goal.goalID %>">
 
                         <button type="submit">Add Goal Step</button>
                     </form>

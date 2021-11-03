@@ -358,6 +358,35 @@ app.post("/create-comment", encoder, function (req, res) {
     })
 })
 
+app.post("/create-step", encoder, function (req, res) {
+    var goalStep = req.body.newStep;
+    var tempGoalID = req.body.goalID;
+
+    connection.query("insert into GoalSteps (stepText, completed, goalID) values (?, ?, ?);", [goalStep, 0, tempGoalID], function (error, results, fields) {
+        if (error) throw error;
+        connection.query("select * from GoalSteps where stepText = ? and completed = ? and goalID = ?;", [goalStep, 0, tempGoalID], function (error, results, fields) {
+            if (error) throw error;
+            userAccount.relationshipList.forEach(el => {
+                if (el.relationshipID == relationshipID) {
+
+                    el.goalList.forEach(goal => {
+                        if (goal.goalID == tempGoalID) {
+                            // adding the step object to the list
+                            goal.addToStepList(new Step(results[0].stepID, results[0].stepText, results[0].completed, results[0].goalID))
+                            res.render('org_page', {
+                                userAccount: userAccount,
+                                selectedOrg: selectedOrg,
+                                orgId: orgId,
+                                adminUsername: adminUsername,
+                                relationshipID: relationshipID
+                            })
+                        }
+                    })
+                }
+            })
+        })
+    })
+})
 
 
 
