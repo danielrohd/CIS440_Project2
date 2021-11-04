@@ -100,11 +100,12 @@ app.get("/views/welcome", function (req, res) {
             userAccount.relationshipList.forEach(element =>
                 connection.query("select * from Goals where relationshipID = ?;", [element.relationshipID], function (error, results, fields) {
                     if (error) throw error;
-                    results.forEach(e => element.addToGoalList(new Goal(e.goalID, e.relationshipID, e.goalInfo, e.dueDate, e.startDate, e.orgId)));
+                    results.forEach(e => element.addToGoalList(new Goal(e.goalID, e.relationshipID, e.goalInfo, e.dueDate, e.startDate, e.orgId, e.completed)));
                     console.log('here1')
-                    element.goalList.forEach(el =>
+                    element.goalList.forEach(el => 
                         connection.query("select * from GoalSteps where goalID= ?;", [el.goalID], function (error, results, fields) {
                             if (error) throw error;
+                            el.checkStepCompletion();
                             results.forEach(results => el.addToStepList(new Step(results.stepID, results.stepText, results.completed, results.goalID)));
                         }));
                     element.goalList.forEach(el =>
@@ -280,11 +281,11 @@ app.post("/create-goal", encoder, function (req, res) {
     var date = today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate();
 
     // creating new goal
-    connection.query("insert into Goals (relationshipID, goalInfo, dueDate, startDate, orgId) values (?, ?, ?, ?, ?);", [relationshipID, goalText, dueDate, date, orgId],
+    connection.query("insert into Goals (relationshipID, goalInfo, dueDate, startDate, orgId, completed) values (?, ?, ?, ?, ?, ?);", [relationshipID, goalText, dueDate, date, orgId, 0],
         function (error, results, fields) {
             if (error) throw error;
             // finding the new goal to create object
-            connection.query("select * from Goals where relationshipID = ? and goalInfo = ? and dueDate = ? and startDate = ? and orgId = ?;", [relationshipID, goalText, dueDate, date, orgId],
+            connection.query("select * from Goals where relationshipID = ? and goalInfo = ? and dueDate = ? and startDate = ? and orgId = ? and completed = ?;", [relationshipID, goalText, dueDate, date, orgId, 0],
                 function (error, results, fields) {
                     if (error) throw error;
                     goalID = results[0].goalID;
@@ -293,7 +294,7 @@ app.post("/create-goal", encoder, function (req, res) {
                         console.log(results)
                         if (el.relationshipID == relationshipID) {
                             // adding the goal to the correct list
-                            el.addToGoalList(new Goal(results[0].goalID, results[0].relationshipID, results[0].goalInfo, results[0].dueDate, results[0].startDate, results[0].orgId))
+                            el.addToGoalList(new Goal(results[0].goalID, results[0].relationshipID, results[0].goalInfo, results[0].dueDate, results[0].startDate, results[0].orgId, results[0].completed))
                             // creating the step for the goal
                             connection.query("insert into GoalSteps (stepText, completed, goalID) values (?, 0, ?);", [step1, goalID], function (error, results, fields) {
                                 if (error) throw error;
@@ -386,6 +387,78 @@ app.post("/create-step", encoder, function (req, res) {
             })
         })
     })
+})
+
+app.post("/mark-step-complete", encoder, function (req, res) {
+    var stepID = req.body.tempStepID;
+    var completed = req.body.completedValue;
+    var tempGoalID = req.body.goalID;
+    var newCompleted;
+
+    if (completed == 0) {
+        newCompleted = 1;
+    } else {
+        newCompleted = 0;
+    }
+
+    connection.query("UPDATE `cis440fall2021group5`.`GoalSteps` SET completed = ? WHERE stepID = ?;", [stepID, newCompleted], function (error, results, fields) {
+        if (error) throw error;
+        userAccount.relationshipList.forEach(rel => {
+            if (rel.relationshipID == relationshipID) {
+                rel.goalList.forEach(goal => {
+                    if (tempGoalID == goal.goalID) {
+                        goal.stepList.forEach(step => {
+                            if (stepID == step.stepID) {
+                                step.completed = newCompleted;
+                                step.updateCompletedText()
+                                goal.checkStepCompletion()
+                                res.render('org_page', {
+                                    userAccount: userAccount,
+                                    selectedOrg: selectedOrg,
+                                    orgId: orgId,
+                                    adminUsername: adminUsername,
+                                    relationshipID: relationshipID
+                                })
+                            }
+                        })
+                    }
+                })
+            }
+        })
+    })
+})
+
+app.post("/mark-goal-complete", encoder, function (req, res) {
+    var tempGoalID = req.body.goalID;
+    var completed = req.body.completedValue;
+    var newCompleted;
+
+    if (completed == 0) {
+        newCompleted = 1;
+    } else {
+        newCompleted = 0;
+    }
+
+    connection.query("UPDATE `cis440fall2021group5`.`Goals` SET completed = ? WHERE goalID = ?;", [newCompleted, tempGoalID], function (error, results, fields) {
+        if (error) throw error;
+        userAccount.relationshipList.forEach(rel => {
+            if (rel.relationshipID == relationshipID) {
+                rel.goalList.forEach(goal => {
+                    if (goal.goalID == tempGoalID) {
+                        goal.completed = newCompleted;
+                        res.render('org_page', {
+                            userAccount: userAccount,
+                            selectedOrg: selectedOrg,
+                            orgId: orgId,
+                            adminUsername: adminUsername,
+                            relationshipID: relationshipID
+                        })
+                    }
+                })
+            }
+        })
+    })
+
 })
 
 
@@ -485,11 +558,13 @@ class Relationship {
 }
 
 class Goal {
-    constructor(goalID, relationshipID, goalInfo, dueDate = null, startDate, orgID) {
+    constructor(goalID, relationshipID, goalInfo, dueDate = null, startDate, orgID, completed) {
         this.goalID = goalID;
         this.relationshipID = relationshipID;
         this.goalInfo = goalInfo;
         this.orgID = orgID;
+        this.completed = completed;
+        this.stepsComplete;
         this.commentList = [];
         this.stepList = [];
 
@@ -502,7 +577,6 @@ class Goal {
         } else {
             this.dueDateString = "N/A"
         }
-
 
         this.startDate = [];
         startDate[0] = startDate.getFullYear();
@@ -525,6 +599,18 @@ class Goal {
         dueDate[1] = date.getMonth() + 1;
         dueDate[2] = date.getDate();
         this.dueDateString = `${dueDate[1]}/${dueDate[2]}/${dueDate[0]}`
+    }
+
+    checkStepCompletion() {
+        this.stepList.every(step => {
+            if (step.completed == 0) {
+                this.stepsComplete = 0;
+                return false;
+            } else {
+                this.stepsComplete = 1;
+                return true;
+            }
+        })
     }
 }
 
@@ -551,6 +637,14 @@ class Step {
         this.goalID = goalID;
         this.completedText;
 
+        if (this.completed == 0) {
+            this.completedText = "Incomplete"
+        } else {
+            this.completedText = "Complete"
+        }
+    }
+
+    updateCompletedText() {
         if (this.completed == 0) {
             this.completedText = "Incomplete"
         } else {

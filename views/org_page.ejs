@@ -5,7 +5,7 @@
     <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="../createaccount.css">
-    <script src="../main.js"></script>
+    <script></script>
     <title>Create an Organization</title>
 </head>
 
@@ -47,6 +47,16 @@
                 <ul>
                     <% goal.stepList.forEach(step => { %>
                         <li>Step: <%= step.stepText %> | <%= step.completedText %></li>
+                        <form action="/mark-step-complete" method="POST">
+                            <input type="hidden" name="tempStepID" value="<%= step.stepID %>">
+                            <input type="hidden" name="completedValue" value="<%= step.completed %>">
+                            <input type="hidden" name="goalID" value="<%= goal.goalID %>">
+                            <% if (step.completed == 0) { %>
+                                <button type="submit" onclick="test()">Complete Step</button>
+                            <% } else { %>
+                                <button type="submit">Mark as Incomplete</button>
+                            <% } %>
+                        </form>
                     <% }) %>
                     <form action="/create-step" method="POST">
                         <li><input type="text"id="newStepId" name="newStep"></li>
@@ -67,6 +77,19 @@
                     </form>
                     
                 </ul>
+                <% if (goal.stepsComplete == 1) { %>
+                    
+                    <form action="/mark-goal-complete" method="POST">
+                        <input type="hidden" name="goalID" value="<%= goal.goalID %>">
+                        <input type="hidden" name="completedValue" value="<%= goal.completed %>">
+                        <% if (goal.completed == 0) { %>
+                            <button type="submit">Mark Goal Complete</button>
+                        <% } else { %>
+                            <button type="submit">Mark Goal Incomplete</button>
+                        <% } %>
+                    </form>
+                    
+                <% } %>
                 
                 
             <% }) %>
