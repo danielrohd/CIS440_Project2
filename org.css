@@ -8,8 +8,8 @@
 
   .expandedGoal{
       float: right;
-      
-     
+      padding-top: 5vh;
+      padding-right: 40vw;
   }
   
   .expand {
@@ -79,4 +79,8 @@
     background: #eee;
     box-shadow: inset 0 1px 1px #666;
   }
+
+#orgChoice {
+  float: right;
+}
 

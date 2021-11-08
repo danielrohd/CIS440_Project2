@@ -61,12 +61,12 @@
             <% if (rel.relationshipID==relationshipID) { %>
                 <div>
                     <% rel.goalList.forEach(goal=> { %>
-                        <form action="/expand-goal" method="POST">
+                        <!-- <form action="/expand-goal" method="POST">
                             <button type="submit"class="expand">
                                 <%= goal.goalInfo %>
                             </button>
                             <input type="hidden" name="goalID" value="<%= goal.goalID %>">
-                        </form>
+                        </form> -->
                         <% if(goal.expanded==1){ %>
                             <div class="expandedGoal">
                             <ul>
@@ -144,6 +144,20 @@
 
     </ul>
 
+    <% userAccount.relationshipList.forEach(rel=> { %>
+        <% if (rel.relationshipID==relationshipID) { %>
+            <div>
+                <% rel.goalList.forEach(goal=> { %>
+                    <form action="/expand-goal" method="POST">
+                        <button type="submit"class="expand">
+                            <%= goal.goalInfo %>
+                        </button>
+                        <input type="hidden" name="goalID" value="<%= goal.goalID %>">
+                    </form>
+                <% }) %>
+        <% } %>
+    <% }) %>
+
     <% if (userAccount.username==adminUsername) { %>
         <form action="/create-relationship" method="POST" id="createRelationship">
             <select name="mentor" id="mentor">
@@ -175,8 +189,6 @@
             <button type="submit">Create Relationship</button>
         </form>
         <% } %>
-
-            
 
 </body>
 
