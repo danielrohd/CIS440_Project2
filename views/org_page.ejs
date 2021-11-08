@@ -4,10 +4,15 @@
 <head>
     <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="../createaccount.css">
+    <link href="/org.css" rel="stylesheet" type="text/css">
     <script></script>
     <title>Create an Organization</title>
 </head>
+<script>
+    function expandSection(goalID) {
+        console.log("test", goalID)
+    }
+</script>
 
 <body>
     <h1>
@@ -31,89 +36,100 @@
                     Mentor: <%= rel.mentor %> | Mentee: <%= rel.mentee %>
                 </label>
                 <input type="radio" name="relId" id="<%= rel.relationshipID %>" value="<%= rel.relationshipID %>">
-                <br> 
+                <br>
                 <% } %>
                     <% }); %>
 
-        <button type="submit">Select Relationship</button>
-        
+                        <button type="submit">Select Relationship</button>
+
     </form>
-
-    <% userAccount.relationshipList.forEach(rel=> { %>
-        <% if (rel.relationshipID==relationshipID) { %>
-            <div>
-                <% rel.goalList.forEach(goal => { %>
-                <p><%= goal.goalInfo %></p>
-                <ul>
-                    <% goal.stepList.forEach(step => { %>
-                        <li>Step: <%= step.stepText %> | <%= step.completedText %></li>
-                        <form action="/mark-step-complete" method="POST">
-                            <input type="hidden" name="tempStepID" value="<%= step.stepID %>">
-                            <input type="hidden" name="completedValue" value="<%= step.completed %>">
+    <ul>
+        <% userAccount.relationshipList.forEach(rel=> { %>
+            <% if (rel.relationshipID==relationshipID) { %>
+                <div>
+                    <% rel.goalList.forEach(goal=> { %>
+                        <form action="/expand-goal" method="POST">
+                            <button type="submit"class="expand">
+                                <%= goal.goalInfo %>
+                            </button>
                             <input type="hidden" name="goalID" value="<%= goal.goalID %>">
-                            <% if (step.completed == 0) { %>
-                                <button type="submit" onclick="test()">Complete Step</button>
-                            <% } else { %>
-                                <button type="submit">Mark as Incomplete</button>
-                            <% } %>
                         </form>
-                    <% }) %>
-                    <form action="/create-step" method="POST">
-                        <li><input type="text"id="newStepId" name="newStep"></li>
-                        <input type="hidden" name="goalID" value="<%= goal.goalID %>">
+                        <% if(goal.expanded==1){ %>
+                            <div class="expandedGoal">
+                            <ul>
+                                <% goal.stepList.forEach(step=> { %>
+                                    <p>Step: <%= step.stepText %> | <%= step.completedText %>
+                                    </p>
+                                    <form action="/mark-step-complete" method="POST">
+                                        <input type="hidden" name="tempStepID" value="<%= step.stepID %>">
+                                        <input type="hidden" name="completedValue" value="<%= step.completed %>">
+                                        <input type="hidden" name="goalID" value="<%= goal.goalID %>">
+                                        <% if (step.completed==0) { %>
+                                            <button type="submit" onclick="test()">Complete Step</button>
+                                            <% } else { %>
+                                                <button type="submit">Mark as Incomplete</button>
+                                                <% } %>
+                                    </form>
+                                    <% }) %>
+                                        <form action="/create-step" method="POST">
+                                            <li><input type="text" id="newStepId" name="newStep"></li>
+                                            <input type="hidden" name="goalID" value="<%= goal.goalID %>">
 
-                        <button type="submit">Add Goal Step</button>
-                    </form>
-                </ul>
-                <ul>
-                    <% goal.commentList.forEach(comment => { %>
-                        <li><%= comment.author %> - <%= comment.commentText %> (<%=comment.commentDateString %>)</li>
-                    <% }) %>
-                    <form action="/create-comment" method="POST">
-                        <li><input type="text"id="newCommentId" name="newComment"></li>
-                        <input type="hidden" name="goalID" value="<%= goal.goalID %>">
+                                            <button type="submit">Add Goal Step</button>
+                                        </form>
+                            </ul>
+                            <ul >
+                                <% goal.commentList.forEach(comment=> { %>
+                                    <p>
+                                        <%= comment.author %> - <%= comment.commentText %> (<%=comment.commentDateString
+                                                    %>)
+                                    </p>
+                                    <% }) %>
+                                        <form action="/create-comment" method="POST">
+                                            <li><input type="text" id="newCommentId" name="newComment"></li>
+                                            <input type="hidden" name="goalID" value="<%= goal.goalID %>">
 
-                        <button type="submit">Add Comment</button>
-                    </form>
-                    
-                </ul>
-                <% if (goal.stepsComplete == 1) { %>
-                    
-                    <form action="/mark-goal-complete" method="POST">
-                        <input type="hidden" name="goalID" value="<%= goal.goalID %>">
-                        <input type="hidden" name="completedValue" value="<%= goal.completed %>">
-                        <% if (goal.completed == 0) { %>
-                            <button type="submit">Mark Goal Complete</button>
-                        <% } else { %>
-                            <button type="submit">Mark Goal Incomplete</button>
-                        <% } %>
-                    </form>
-                    
-                <% } %>
-                
-                
-            <% }) %>
+                                            <button type="submit">Add Comment</button>
+                                        </form>
+                            </ul>
+                            </div>
+                            <% if (goal.stepsComplete==1) { %>
 
-                <form action="/create-goal" method="POST" id="createGoal">
-                    <label for="goalInfo">Goal Description: </label>
-                    <input type="text" name="goalInfo" id="goalInfo">
-                    <br>
+                                <form action="/mark-goal-complete" method="POST">
+                                    <input type="hidden" name="goalID" value="<%= goal.goalID %>">
+                                    <input type="hidden" name="completedValue" value="<%= goal.completed %>">
+                                    <% if (goal.completed==0) { %>
+                                        <button type="submit">Mark Goal Complete</button>
+                                        <% } else { %>
+                                            <button type="submit">Mark Goal Incomplete</button>
+                                            <% } %>
+                                </form>
 
-                    <label for="dueDate">Due Date: </label>
-                    <input type="date" name="dueDate" id="dueDate">
-                    <br>
+                                <% } %>
+                                    <% } %>
 
-                    <label for="step1">Step 1: </label>
-                    <input type="text" name="step1" id="step1">
+                                        <% }) %>
 
-                    <button type="submit">Create Goal</button>
-                </form>
+                                            <form action="/create-goal" method="POST" id="createGoal">
+                                                <label for="goalInfo">Goal Description: </label>
+                                                <input type="text" name="goalInfo" id="goalInfo">
+                                                <br>
 
-                <% } %>
-                    <% }); %>
-            </div>
-    
-    
+                                                <label for="dueDate">Due Date: </label>
+                                                <input type="date" name="dueDate" id="dueDate">
+                                                <br>
+
+                                                <label for="step1">Step 1: </label>
+                                                <input type="text" name="step1" id="step1">
+
+                                                <button type="submit">Create Goal</button>
+                                            </form>
+
+                                            <% } %>
+                                                <% }); %>
+                </div>
+
+    </ul>
 
     <% if (userAccount.username==adminUsername) { %>
         <form action="/create-relationship" method="POST" id="createRelationship">

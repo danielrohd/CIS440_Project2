@@ -10,7 +10,7 @@ const app = express();
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
 //app.use(express.json());
-app.use("/home.css", express.static("home.css"));
+app.use("/home.css",express.static("home.css"));
 
 let userAccount;
 
@@ -196,6 +196,7 @@ app.post("/org-page", encoder, function (req, res) {
         if (error) throw error;
         orgId = results[0].orgId
         adminUsername = results[0].adminUsername;
+        app.use("/org.css",express.static("org.css"))
         res.render('org_page', {
             userAccount: userAccount,
             selectedOrg: selectedOrg,
@@ -203,6 +204,7 @@ app.post("/org-page", encoder, function (req, res) {
             adminUsername: adminUsername,
             relationshipID: relationshipID
         })
+        app.use("/views/org.css",express.static("/views/org.css"))
     })
 })
 
@@ -261,6 +263,7 @@ app.post("/create-relationship", encoder, function (req, res) {
 app.post("/display-goals", encoder, function (req, res) {
     relationshipID = req.body.relId
     console.log(relationshipID)
+   
 
     res.render('org_page', {
         userAccount: userAccount,
@@ -269,6 +272,7 @@ app.post("/display-goals", encoder, function (req, res) {
         adminUsername: adminUsername,
         relationshipID: relationshipID
     })
+    app.use("org.css",express.static("org.css"))
 })
 
 app.post("/create-goal", encoder, function (req, res) {
@@ -461,6 +465,38 @@ app.post("/mark-goal-complete", encoder, function (req, res) {
 
 })
 
+app.post("/expand-goal",encoder,function(req,res){
+    var goalID = req.body.goalID;
+    userAccount.relationshipList.forEach(rel =>{
+        if (rel.relationshipID == relationshipID){
+            rel.goalList.forEach(goal =>{
+                if(goal.goalID == goalID){
+                    if( goal.expanded == 1){
+                       goal.expanded = 0; 
+                    }
+                    else{
+                        goal.expanded = 1;
+                    }
+                
+                  
+                 
+                }
+                else{
+                    goal.expanded = 0;
+                } 
+                
+            }) 
+            res.render('org_page', {
+                        userAccount: userAccount,
+                        selectedOrg: selectedOrg,
+                        orgId: orgId,
+                        adminUsername: adminUsername,
+                        relationshipID: relationshipID
+                    })
+        }
+    })
+})
+
 
 
 // function doesUsernameExist(username) {
@@ -565,6 +601,7 @@ class Goal {
         this.orgID = orgID;
         this.completed = completed;
         this.stepsComplete;
+        this.expanded = 0;
         this.commentList = [];
         this.stepList = [];
 
