@@ -19,7 +19,21 @@
         <%= selectedOrg %> <br>
             <%= userAccount.first %>'s Relationships
     </h1>
-    <ul>
+    <!-- lets you select an org, you can then see your relationships and create them if you're the admin -->
+            <form action="/org-page" method="POST" id="orgChoice">
+                <select name="orgChoice" id="orgChoice">
+                    <% userAccount.orgList.forEach(org=> { %>
+                        <option value="<%= org.name %>">
+                            <%= org.name %>
+                        </option>
+                        <% }); %>
+                </select>
+                <button type="submit">
+                    Select Org
+                </button>
+            </form>
+
+    <!-- <ul>
         <% userAccount.relationshipList.forEach(rel=> { %>
             <% if (rel.orgID==orgId) { %>
                 <li>
@@ -27,20 +41,19 @@
                 </li>
                 <% } %>
                     <% }); %>
-    </ul>
+    </ul> -->
 
     <form action="/display-goals" method="POST" id="displayGoals">
-        <% userAccount.relationshipList.forEach(rel=> { %>
+        <select name="relId" id="relId">
+            <% userAccount.relationshipList.forEach(rel=> { %>
             <% if (rel.orgID==orgId) { %>
-                <label for="<%= rel.relationshipID %>">
+                <option value="<%= rel.relationshipID %>">
                     Mentor: <%= rel.mentor %> | Mentee: <%= rel.mentee %>
-                </label>
-                <input type="radio" name="relId" id="<%= rel.relationshipID %>" value="<%= rel.relationshipID %>">
-                <br>
+                </option>
                 <% } %>
-                    <% }); %>
-
-                        <button type="submit">Select Relationship</button>
+                    <% }); %>    
+        </select>
+            <button type="submit">Select Relationship</button>
 
     </form>
     <ul>
@@ -163,19 +176,7 @@
         </form>
         <% } %>
 
-            <!-- lets you select an org, you can then see your relationships and create them if you're the admin -->
-            <form action="/org-page" method="POST" id="orgChoice">
-                <select name="orgChoice" id="orgChoice">
-                    <% userAccount.orgList.forEach(org=> { %>
-                        <option value="<%= org.name %>">
-                            <%= org.name %>
-                        </option>
-                        <% }); %>
-                </select>
-                <button type="submit">
-                    Select Org
-                </button>
-            </form>
+            
 
 </body>
 
