@@ -5,6 +5,8 @@ const bodyParser = require("body-parser");
 const e = require("express");
 const { connect } = require("mssql");
 const encoder = bodyParser.urlencoded();
+const nodemailer = require('nodemailer');
+let mailDetails;
 
 const app = express();
 app.set('view engine', 'ejs');
@@ -13,6 +15,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/home.css",express.static("home.css"));
 
 let userAccount;
+
+let mailTransporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'notFacebook440@gmail.com',
+        pass: 'codingPassword321'
+    }
+});
 
 const connection = mysql.createConnection({
     host: "107.180.1.16",
@@ -315,6 +325,29 @@ app.post("/create-goal", encoder, function (req, res) {
                                                 orgId: orgId,
                                                 adminUsername: adminUsername,
                                                 relationshipID: relationshipID
+                                            })
+                                            var otherUsername;
+                                            if (el.mentee == userAccount.username) {
+                                                otherUsername = el.mentor;
+                                            } else {
+                                                otherUsername = el.mentee;
+                                            }
+                                            connection.query("select email from UserAccounts where username = ?;", [otherUsername], function (error, results, fields) {
+                                                if (error) throw error;
+                                                var emailTo = results[0].email;
+                                                mailDetails = {
+                                                    from: 'notFacebook440@gmail.com',
+                                                    to: `${emailTo}`,
+                                                    subject: `${userAccount.first} just created a new goal!`,
+                                                    text: `${userAccount.first} ${userAccount.last} just added a new goal to your mentor-mentee relationship! Their goal is: ${goalText}`
+                                                };
+                                                mailTransporter.sendMail(mailDetails, function(err, data) {
+                                                    if(err) {
+                                                        console.log('Error Occurs');
+                                                    } else {
+                                                        console.log('Email sent successfully');
+                                                    }
+                                                });
                                             })
                                         }
                                     })
