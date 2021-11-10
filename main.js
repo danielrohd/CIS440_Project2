@@ -490,6 +490,29 @@ app.post("/mark-goal-complete", encoder, function (req, res) {
                             adminUsername: adminUsername,
                             relationshipID: relationshipID
                         })
+                        var otherUsername;
+                            if (rel.mentee == userAccount.username) {
+                                otherUsername = rel.mentor;
+                            } else {
+                                otherUsername = rel.mentee;
+                            }
+                        connection.query("select email from UserAccounts where username = ?;", [otherUsername], function (error, results, fields) {
+                            if (error) throw error;
+                            var emailTo = results[0].email;
+                            mailDetails = {
+                                from: 'notFacebook440@gmail.com',
+                                to: `${emailTo}`,
+                                subject: `${userAccount.first} just completed their goal!`,
+                                text: `${userAccount.first} ${userAccount.last} just marked their goal, "${goal.goalInfo}", as completed!`
+                            };
+                            mailTransporter.sendMail(mailDetails, function(err, data) {
+                                if(err) {
+                                    console.log('Error Occurs');
+                                } else {
+                                    console.log('Email sent successfully');
+                                }
+                            });
+                        })
                     }
                 })
             }
