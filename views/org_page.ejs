@@ -111,8 +111,7 @@
                                                 <button type="submit">Add Comment</button>
                                             </form>
                                 </ul>
-                            </div>
-                            <% if (goal.stepsComplete==1) { %>
+                                <% if (goal.stepsComplete==1) { %>
 
                                 <form action="/mark-goal-complete" method="POST">
                                     <input type="hidden" name="goalID" value="<%= goal.goalID %>">
@@ -125,6 +124,8 @@
                                 </form>
 
                                 <% } %>
+                            </div>
+                            
                                     <% } %>
 
                                         <% }) %>
