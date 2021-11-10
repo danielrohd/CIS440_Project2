@@ -438,7 +438,7 @@ app.post("/mark-step-complete", encoder, function (req, res) {
         newCompleted = 0;
     }
 
-    connection.query("UPDATE `cis440fall2021group5`.`GoalSteps` SET completed = ? WHERE stepID = ?;", [stepID, newCompleted], function (error, results, fields) {
+    connection.query("UPDATE `cis440fall2021group5`.`GoalSteps` SET completed = ? WHERE stepID = ?;", [newCompleted, stepID], function (error, results, fields) {
         if (error) throw error;
         userAccount.relationshipList.forEach(rel => {
             if (rel.relationshipID == relationshipID) {
