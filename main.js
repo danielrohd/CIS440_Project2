@@ -12,7 +12,7 @@ const app = express();
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
 //app.use(express.json());
-app.use("/home.css",express.static("home.css"));
+app.use("/home.css", express.static("home.css"));
 
 let userAccount;
 
@@ -30,6 +30,11 @@ const connection = mysql.createConnection({
     user: "fall2021group5",
     password: "group5fall2021"
 });
+
+setInterval(function () {
+    connection.query("select 1");
+}, 5000);
+
 connection.connect(function (error) {
     if (error) throw error
     else console.log("connected to the database successfully")
@@ -112,7 +117,7 @@ app.get("/views/welcome", function (req, res) {
                     if (error) throw error;
                     results.forEach(e => element.addToGoalList(new Goal(e.goalID, e.relationshipID, e.goalInfo, e.dueDate, e.startDate, e.orgId, e.completed)));
                     console.log('here1')
-                    element.goalList.forEach(el => 
+                    element.goalList.forEach(el =>
                         connection.query("select * from GoalSteps where goalID= ?;", [el.goalID], function (error, results, fields) {
                             if (error) throw error;
                             el.checkStepCompletion();
@@ -206,7 +211,9 @@ app.post("/org-page", encoder, function (req, res) {
         if (error) throw error;
         orgId = results[0].orgId
         adminUsername = results[0].adminUsername;
-        app.use("/org.css",express.static("org.css"))
+        relationshipID = undefined;
+        console.log(orgId, relationshipID)
+        app.use("/org.css", express.static("org.css"))
         res.render('org_page', {
             userAccount: userAccount,
             selectedOrg: selectedOrg,
@@ -214,7 +221,7 @@ app.post("/org-page", encoder, function (req, res) {
             adminUsername: adminUsername,
             relationshipID: relationshipID
         })
-        app.use("/views/org.css",express.static("/views/org.css"))
+        app.use("/views/org.css", express.static("/views/org.css"))
     })
 })
 
@@ -273,7 +280,14 @@ app.post("/create-relationship", encoder, function (req, res) {
 app.post("/display-goals", encoder, function (req, res) {
     relationshipID = req.body.relId
     console.log(relationshipID)
-   
+    userAccount.relationshipList.forEach(rel => {
+        if (rel.relationshipID == relationshipID) {
+            rel.goalList.forEach(goal => {
+                goal.checkStepCompletion()
+            })
+        }
+    })
+
 
     res.render('org_page', {
         userAccount: userAccount,
@@ -282,7 +296,7 @@ app.post("/display-goals", encoder, function (req, res) {
         adminUsername: adminUsername,
         relationshipID: relationshipID
     })
-    app.use("org.css",express.static("org.css"))
+    app.use("org.css", express.static("org.css"))
 })
 
 app.post("/create-goal", encoder, function (req, res) {
@@ -341,8 +355,8 @@ app.post("/create-goal", encoder, function (req, res) {
                                                     subject: `${userAccount.first} just created a new goal!`,
                                                     text: `${userAccount.first} ${userAccount.last} just added a new goal to your mentor-mentee relationship! Their goal is: ${goalText}`
                                                 };
-                                                mailTransporter.sendMail(mailDetails, function(err, data) {
-                                                    if(err) {
+                                                mailTransporter.sendMail(mailDetails, function (err, data) {
+                                                    if (err) {
                                                         console.log('Error Occurs');
                                                     } else {
                                                         console.log('Email sent successfully');
@@ -411,6 +425,7 @@ app.post("/create-step", encoder, function (req, res) {
                         if (goal.goalID == tempGoalID) {
                             // adding the step object to the list
                             goal.addToStepList(new Step(results[0].stepID, results[0].stepText, results[0].completed, results[0].goalID))
+                            goal.checkStepCompletion()
                             res.render('org_page', {
                                 userAccount: userAccount,
                                 selectedOrg: selectedOrg,
@@ -483,6 +498,7 @@ app.post("/mark-goal-complete", encoder, function (req, res) {
                 rel.goalList.forEach(goal => {
                     if (goal.goalID == tempGoalID) {
                         goal.completed = newCompleted;
+                        goal.checkStepCompletion()
                         res.render('org_page', {
                             userAccount: userAccount,
                             selectedOrg: selectedOrg,
@@ -491,11 +507,11 @@ app.post("/mark-goal-complete", encoder, function (req, res) {
                             relationshipID: relationshipID
                         })
                         var otherUsername;
-                            if (rel.mentee == userAccount.username) {
-                                otherUsername = rel.mentor;
-                            } else {
-                                otherUsername = rel.mentee;
-                            }
+                        if (rel.mentee == userAccount.username) {
+                            otherUsername = rel.mentor;
+                        } else {
+                            otherUsername = rel.mentee;
+                        }
                         connection.query("select email from UserAccounts where username = ?;", [otherUsername], function (error, results, fields) {
                             if (error) throw error;
                             var emailTo = results[0].email;
@@ -505,8 +521,8 @@ app.post("/mark-goal-complete", encoder, function (req, res) {
                                 subject: `${userAccount.first} just completed their goal!`,
                                 text: `${userAccount.first} ${userAccount.last} just marked their goal, "${goal.goalInfo}", as completed!`
                             };
-                            mailTransporter.sendMail(mailDetails, function(err, data) {
-                                if(err) {
+                            mailTransporter.sendMail(mailDetails, function (err, data) {
+                                if (err) {
                                     console.log('Error Occurs');
                                 } else {
                                     console.log('Email sent successfully');
@@ -521,34 +537,34 @@ app.post("/mark-goal-complete", encoder, function (req, res) {
 
 })
 
-app.post("/expand-goal",encoder,function(req,res){
+app.post("/expand-goal", encoder, function (req, res) {
     var goalID = req.body.goalID;
-    userAccount.relationshipList.forEach(rel =>{
-        if (rel.relationshipID == relationshipID){
-            rel.goalList.forEach(goal =>{
-                if(goal.goalID == goalID){
-                    if( goal.expanded == 1){
-                       goal.expanded = 0; 
+    userAccount.relationshipList.forEach(rel => {
+        if (rel.relationshipID == relationshipID) {
+            rel.goalList.forEach(goal => {
+                if (goal.goalID == goalID) {
+                    if (goal.expanded == 1) {
+                        goal.expanded = 0;
                     }
-                    else{
+                    else {
                         goal.expanded = 1;
                     }
-                
-                  
-                 
+
+
+
                 }
-                else{
+                else {
                     goal.expanded = 0;
-                } 
-                
-            }) 
+                }
+
+            })
             res.render('org_page', {
-                        userAccount: userAccount,
-                        selectedOrg: selectedOrg,
-                        orgId: orgId,
-                        adminUsername: adminUsername,
-                        relationshipID: relationshipID
-                    })
+                userAccount: userAccount,
+                selectedOrg: selectedOrg,
+                orgId: orgId,
+                adminUsername: adminUsername,
+                relationshipID: relationshipID
+            })
         }
     })
 })
