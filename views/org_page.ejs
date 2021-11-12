@@ -5,14 +5,11 @@
     <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="/org.css" rel="stylesheet" type="text/css">
-    <script></script>
+    <script src="https://cdn.anychart.com/js/8.0.1/anychart-core.min.js"></script>
+    <script src="https://cdn.anychart.com/js/8.0.1/anychart-pie.min.js"></script>
     <title>Create an Organization</title>
 </head>
-<script>
-    function expandSection(goalID) {
-        console.log("test", goalID)
-    }
-</script>
+
 
 <body>
     <h1>
@@ -81,14 +78,17 @@
                             <%= userAccount.first %>'s Goals with <%= rel.mentor %>
                         </h3>
                         <% } %>
+                        <div id="pie"></div>  
                             <div>
                                 <% rel.goalList.forEach(goal=> { %>
                                     <!-- <form action="/expand-goal" method="POST">
                             <button type="submit"class="expand">
                                 <%= goal.goalInfo %>
+
                             </button>
                             <input type="hidden" name="goalID" value="<%= goal.goalID %>">
                         </form> -->
+                            
                                     <% if(goal.expanded==1){ %>
                                         <div class="expandedGoal">
                                             <ul>
@@ -156,6 +156,8 @@
                                         </div>
 
                                         <% } %>
+                                       
+                                       
 
                                             <% }) %>
 
@@ -167,9 +169,12 @@
 
     <% userAccount.relationshipList.forEach(rel=> { %>
         <% if (rel.relationshipID==relationshipID) { %>
-            <div>
+            <div id="pieFix">
+               <input type="hidden" id="percent"value=<%= rel.getPercentageComplete() %> > 
                 <% rel.goalList.forEach(goal=> { %>
                     <form action="/expand-goal" method="POST">
+                        
+                       
                         <button type="submit" class="expand">
                             <%= goal.goalInfo %>
                         </button>
@@ -240,7 +245,50 @@
                                                 <button type="submit">Create Relationship</button>
                                             </form>
                                             <% } %>
+   
+  
+  <script>
+    function expandSection(goalID) {
+        console.log("test", goalID)
+    }
+   
+    console.log(document.getElementById("percent").innerHTML)
+    anychart.onDocumentReady(function() {
+
+
+    // set the data
+    var completedPercent = Number(document.getElementById("percent").value)
+    var incompletedPercent = 1 - completedPercent
+    
+    var data = [
+        {x: "Completed", value: completedPercent },
+        {x: "Not Complete", value: incompletedPercent},
+       
+    ];
+
+    // create the chart
+    var chart = anychart.pie();
+
+    // set the chart title
+    chart.title("Percentage of Goals Completed");
+
+    // add the data
+    chart.data(data);
+
+    // set legend position
+    //chart.legend().position("right");
+    // set items layout
+    chart.legend().itemsLayout("vertical");  
+
+    // display the chart in the container
+    chart.container('pie');
+    chart.draw();
+
+    });
+</script>
 
 </body>
+
+
 
 </html>

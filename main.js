@@ -636,6 +636,7 @@ class Relationship {
         this.orgID = orgID;
         this.goalList = [];
 
+
         this.startDate = [];
         startDate[0] = startDate.getFullYear();
         startDate[1] = startDate.getMonth() + 1;
@@ -650,6 +651,19 @@ class Relationship {
             this.endDateString = `${endDate[1]}/${endDate[2]}/${endDate[0]}`
         }
 
+    }
+
+    getPercentageComplete(){
+        var completedGoals = 0;
+        var totalGoals = 0;
+        this.goalList.forEach(goal=>{
+            if(goal.completed == 1){
+                completedGoals += 1;
+            }
+            totalGoals += 1;
+        })
+        console.log(completedGoals/totalGoals)
+        return completedGoals / totalGoals;
     }
 
     addToGoalList(goal) {
