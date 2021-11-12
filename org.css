@@ -1,4 +1,7 @@
-
+body {
+  background-color: #F3EBF6;
+  font-family: 'Ubuntu', sans-serif;
+}
 .expand {
     padding: 0;
     margin: 0;
@@ -8,7 +11,10 @@
 
   .expandedGoal{
       float: right;
-      padding-right: 40vw;
+      margin-right: 35vw;
+      width: 22vw;
+      border: thin solid black;
+      background-color: white;
   }
   
   .expand {
