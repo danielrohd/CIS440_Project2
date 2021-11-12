@@ -8,13 +8,22 @@
 
   .expandedGoal{
       float: right;
-      padding-right: 40vw;
+      padding-right: 10vw;
   }
   
   .completedWrapper {
     height: 5vh;
     position: relative;
     width: 7vw;
+  }
+
+  #pie {
+    width: 30vw;
+    height: 70vh;
+    margin: 0;
+    padding: 0;
+    float: right;
+
   }
 
   .completedIcon {
