@@ -12,7 +12,7 @@
 
 
 <body>
-    <h1>
+    <h1 id="header">
         <%= selectedOrg %> <br>
             <%= userAccount.first %>'s Relationships
     </h1>
@@ -78,7 +78,7 @@
                             <%= userAccount.first %>'s Goals with <%= rel.mentor %>
                         </h3>
                         <% } %>
-                        <div id="pie"></div>  
+                            <div id="pie"></div>
                             <div>
                                 <% rel.goalList.forEach(goal=> { %>
                                     <!-- <form action="/expand-goal" method="POST">
@@ -88,7 +88,7 @@
                             </button>
                             <input type="hidden" name="goalID" value="<%= goal.goalID %>">
                         </form> -->
-                            
+
                                     <% if(goal.expanded==1){ %>
                                         <div class="expandedGoal">
                                             <ul>
@@ -156,13 +156,33 @@
                                         </div>
 
                                         <% } %>
-                                       
-                                       
+
+
+
+
 
                                             <% }) %>
 
-                                                <% } %>
-                                                    <% }); %>
+                                                <% if (relationshipID !=undefined && rel.addGoalStatus==1) { %>
+                                                    <form action="/create-goal" method="POST" id="createGoal"
+                                                        class="expandedGoal">
+                                                        <label for="goalInfo">Goal Description: </label>
+                                                        <input type="text" name="goalInfo" id="goalInfo" required>
+                                                        <br>
+
+                                                        <label for="dueDate">Due Date: </label>
+                                                        <input type="date" name="dueDate" id="dueDate" required>
+                                                        <br>
+
+                                                        <label for="step1">Step 1: </label>
+                                                        <input type="text" name="step1" id="step1" required>
+
+                                                        <button type="submit">Create Goal</button>
+                                                    </form>
+                                                    <% } %>
+
+                                                        <% } %>
+                                                            <% }); %>
                             </div>
 
     </ul>
@@ -170,122 +190,123 @@
     <% userAccount.relationshipList.forEach(rel=> { %>
         <% if (rel.relationshipID==relationshipID) { %>
             <div id="pieFix">
-               <input type="hidden" id="percent"value=<%= rel.getPercentageComplete() %> > 
+                <input type="hidden" id="percent" value=<%=rel.getPercentageComplete() %> >
                 <% rel.goalList.forEach(goal=> { %>
                     <form action="/expand-goal" method="POST">
-                        
-                       
+
+
                         <button type="submit" class="expand">
                             <%= goal.goalInfo %>
                         </button>
-                        <% if (goal.completed == 1) { %>
+                        <% if (goal.completed==1) { %>
                             <span class="completedWrapper">
                                 <span class="completedIcon">Completed</span>
                             </span>
-                            
-                        <% } else { %>
-                            <span class="incompleteWrapper">
-                                <span class="incompleteIcon">Incomplete</span>
-                            </span>
-                            
-                        <% } %>
-                        
-                        <input type="hidden" name="goalID" value="<%= goal.goalID %>">
+
+                            <% } else { %>
+                                <span class="incompleteWrapper">
+                                    <span class="incompleteIcon">Incomplete</span>
+                                </span>
+
+                                <% } %>
+
+                                    <input type="hidden" name="goalID" value="<%= goal.goalID %>">
                     </form>
                     <% }) %>
+                        <br>
+                        <form action="/display-goal-creation" method="POST">
+                            <button type="submit" class="expand">Add New Goal</button>
+                        </form>
                         <% } %>
                             <% }) %>
 
-                                <% if (relationshipID !=undefined) { %>
-                                    <form action="/create-goal" method="POST" id="createGoal">
-                                        <label for="goalInfo">Goal Description: </label>
-                                        <input type="text" name="goalInfo" id="goalInfo">
-                                        <br>
 
-                                        <label for="dueDate">Due Date: </label>
-                                        <input type="date" name="dueDate" id="dueDate">
-                                        <br>
 
-                                        <label for="step1">Step 1: </label>
-                                        <input type="text" name="step1" id="step1">
 
-                                        <button type="submit">Create Goal</button>
+                                <% if (userAccount.username==adminUsername) { %>
+                                    <form action="/create-relationship" method="POST" id="createRelationship">
+                                        <select name="mentor" id="mentor">
+                                            <% userAccount.orgList.forEach(org=> { %>
+                                                <% if (org.orgID==orgId) { %>
+                                                    <% org.userList.forEach(user=> { %>
+                                                        <option value="<%= user %>">
+                                                            <%= user %>
+                                                        </option>
+                                                        <% }) %>
+
+                                                            <% } %>
+                                                                <% }) %>
+                                        </select>
+
+                                        <select name="mentee" id="mentee">
+                                            <% userAccount.orgList.forEach(org=> { %>
+                                                <% if (org.orgID==orgId) { %>
+                                                    <% var count=0; %>
+                                                        <% org.userList.forEach(user=> { %>
+                                                            <% if (count==1) { %>
+                                                                <option value="<%= user %>" selected>
+                                                                    <%= user %>
+                                                                </option>
+                                                                <% } else { %>
+                                                                    <option value="<%= user %>">
+                                                                        <%= user %>
+                                                                    </option>
+                                                                    <% } %>
+
+                                                                        <% count++ %>
+                                                                            <% }) %>
+
+                                                                                <% } %>
+                                                                                    <% }) %>
+                                        </select>
+
+                                        <button type="submit">Create Relationship</button>
                                     </form>
                                     <% } %>
 
 
-                                        <% if (userAccount.username==adminUsername) { %>
-                                            <form action="/create-relationship" method="POST" id="createRelationship">
-                                                <select name="mentor" id="mentor">
-                                                    <% userAccount.orgList.forEach(org=> { %>
-                                                        <% if (org.orgID==orgId) { %>
-                                                            <% org.userList.forEach(user=> { %>
-                                                                <option value="<%= user %>">
-                                                                    <%= user %>
-                                                                </option>
-                                                                <% }) %>
+                                        <script>
+                                            function expandSection(goalID) {
+                                                console.log("test", goalID)
+                                            }
 
-                                                                    <% } %>
-                                                                        <% }) %>
-                                                </select>
-
-                                                <select name="mentee" id="mentee">
-                                                    <% userAccount.orgList.forEach(org=> { %>
-                                                        <% if (org.orgID==orgId) { %>
-                                                            <% org.userList.forEach(user=> { %>
-                                                                <option value="<%= user %>">
-                                                                    <%= user %>
-                                                                </option>
-                                                                <% }) %>
-
-                                                                    <% } %>
-                                                                        <% }) %>
-                                                </select>
-
-                                                <button type="submit">Create Relationship</button>
-                                            </form>
-                                            <% } %>
-   
-  
-  <script>
-    function expandSection(goalID) {
-        console.log("test", goalID)
-    }
-   
-    console.log(document.getElementById("percent").innerHTML)
-    anychart.onDocumentReady(function() {
+                                            console.log(document.getElementById("percent").innerHTML)
+                                            anychart.onDocumentReady(function () {
 
 
-    // set the data
-    var completedPercent = Number(document.getElementById("percent").value)
-    var incompletedPercent = 1 - completedPercent
-    
-    var data = [
-        {x: "Completed", value: completedPercent },
-        {x: "Not Complete", value: incompletedPercent},
-       
-    ];
+                                                // set the data
+                                                var completedPercent = Number(document.getElementById("percent").value)
+                                                var incompletedPercent = 1 - completedPercent
 
-    // create the chart
-    var chart = anychart.pie();
+                                                var data = [
+                                                    { x: "Completed", value: completedPercent, normal: { fill: "#339933" } },
+                                                    { x: "Not Complete", value: incompletedPercent, normal: { fill: "#851212" } },
 
-    // set the chart title
-    chart.title("Percentage of Goals Completed");
+                                                ];
 
-    // add the data
-    chart.data(data);
+                                                // create the chart
+                                                var chart = anychart.pie();
 
-    // set legend position
-    //chart.legend().position("right");
-    // set items layout
-    chart.legend().itemsLayout("vertical");  
+                                                // set the chart title
+                                                chart.title("Percentage of Goals Completed");
 
-    // display the chart in the container
-    chart.container('pie');
-    chart.draw();
+                                                // add the data
+                                                chart.data(data);
 
-    });
-</script>
+                                                // set legend position
+                                                //chart.legend().position("right");
+                                                // set items layout
+                                                chart.legend().itemsLayout("vertical");
+
+                                                // makes the hovered section get bigger (doesnt work, idk why)
+                                                // chart.selected().explode("5%");
+
+                                                // display the chart in the container
+                                                chart.container('pie');
+                                                chart.draw();
+
+                                            });
+                                        </script>
 
 </body>
 

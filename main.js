@@ -105,9 +105,9 @@ app.get("/views/welcome", function (req, res) {
             userAccount.orgList.forEach(element =>
                 connection.query("select username from OrgMembers where orgID = ?;", [element.orgID], function (error, results, fields) {
                     if (error) throw error;
-                    console.log(element)
+                    // console.log(element)
                     results.forEach(e => element.addToUserList(e.username));
-                    console.log("here");
+                    // console.log("here");
                 }))
 
 
@@ -116,7 +116,7 @@ app.get("/views/welcome", function (req, res) {
                 connection.query("select * from Goals where relationshipID = ?;", [element.relationshipID], function (error, results, fields) {
                     if (error) throw error;
                     results.forEach(e => element.addToGoalList(new Goal(e.goalID, e.relationshipID, e.goalInfo, e.dueDate, e.startDate, e.orgId, e.completed)));
-                    console.log('here1')
+                    // console.log('here1')
                     element.goalList.forEach(el =>
                         connection.query("select * from GoalSteps where goalID= ?;", [el.goalID], function (error, results, fields) {
                             if (error) throw error;
@@ -134,7 +134,7 @@ app.get("/views/welcome", function (req, res) {
             res.render('organization_home', {
                 userAccount: userAccount,
             })
-            console.log(userAccount.orgList.userList)
+            // console.log(userAccount.orgList.userList)
             app.use("/welcome.css", express.static("welcome.css"));
         })
 
@@ -204,7 +204,7 @@ app.post("/org-page", encoder, function (req, res) {
     // testing to make sure we can pull a value back to javascript, it works
     selectedOrg = req.body.orgChoice;
     // console.log(selectedOrg)
-    console.log(userAccount.orgList[0].userList)
+    // console.log(userAccount.orgList[0].userList)
 
     // getting the orgId so it can be referenced in the page to print only relationships with that org
     connection.query("select orgId, adminUsername from Organizations where orgName = ?;", [selectedOrg], function (error, results, fields) {
@@ -212,7 +212,7 @@ app.post("/org-page", encoder, function (req, res) {
         orgId = results[0].orgId
         adminUsername = results[0].adminUsername;
         relationshipID = undefined;
-        console.log(orgId, relationshipID)
+        // console.log(orgId, relationshipID)
         app.use("/org.css", express.static("org.css"))
         res.render('org_page', {
             userAccount: userAccount,
@@ -229,7 +229,7 @@ app.post("/org-page", encoder, function (req, res) {
 app.post("/create-relationship", encoder, function (req, res) {
     var mentor = req.body.mentor;
     var mentee = req.body.mentee;
-    console.log(mentee, mentor)
+    // console.log(mentee, mentor)
 
     // checks if the mentor and mentee aren't the same
     if (mentor == mentee) {
@@ -279,7 +279,7 @@ app.post("/create-relationship", encoder, function (req, res) {
 
 app.post("/display-goals", encoder, function (req, res) {
     relationshipID = req.body.relId
-    console.log(relationshipID)
+    // console.log(relationshipID)
     userAccount.relationshipList.forEach(rel => {
         if (rel.relationshipID == relationshipID) {
             rel.goalList.forEach(goal => {
@@ -319,7 +319,7 @@ app.post("/create-goal", encoder, function (req, res) {
                     goalID = results[0].goalID;
                     // finding the right list for the object
                     userAccount.relationshipList.forEach(el => {
-                        console.log(results)
+                        // console.log(results)
                         if (el.relationshipID == relationshipID) {
                             // adding the goal to the correct list
                             el.addToGoalList(new Goal(results[0].goalID, results[0].relationshipID, results[0].goalInfo, results[0].dueDate, results[0].startDate, results[0].orgId, results[0].completed))
@@ -462,6 +462,9 @@ app.post("/mark-step-complete", encoder, function (req, res) {
                         goal.stepList.forEach(step => {
                             if (stepID == step.stepID) {
                                 step.completed = newCompleted;
+                                if (newCompleted == 0 && goal.completed == 1) {
+                                    goal.completed = 0;
+                                }
                                 step.updateCompletedText()
                                 goal.checkStepCompletion()
                                 res.render('org_page', {
@@ -545,19 +548,41 @@ app.post("/expand-goal", encoder, function (req, res) {
                 if (goal.goalID == goalID) {
                     if (goal.expanded == 1) {
                         goal.expanded = 0;
-                    }
-                    else {
+                    } else {
                         goal.expanded = 1;
                     }
 
-
-
-                }
-                else {
+                } else {
                     goal.expanded = 0;
                 }
 
             })
+
+            rel.addGoalStatus = 0;
+            res.render('org_page', {
+                userAccount: userAccount,
+                selectedOrg: selectedOrg,
+                orgId: orgId,
+                adminUsername: adminUsername,
+                relationshipID: relationshipID
+            })
+        }
+    })
+})
+
+app.post("/display-goal-creation", encoder, function (req, res) {
+    userAccount.relationshipList.forEach(rel => {
+        if (rel.relationshipID == relationshipID) {
+            if (rel.addGoalStatus == 0) {
+                rel.addGoalStatus = 1
+            } else {
+                rel.addGoalStatus = 0
+            }
+
+            rel.goalList.forEach(goal =>{
+                goal.expanded = 0;
+            })
+
             res.render('org_page', {
                 userAccount: userAccount,
                 selectedOrg: selectedOrg,
@@ -635,6 +660,7 @@ class Relationship {
         this.mentee = mentee;
         this.orgID = orgID;
         this.goalList = [];
+        this.addGoalStatus = 0;
 
 
         this.startDate = [];
@@ -662,8 +688,13 @@ class Relationship {
             }
             totalGoals += 1;
         })
-        console.log(completedGoals/totalGoals)
-        return completedGoals / totalGoals;
+        // console.log(completedGoals/totalGoals)
+
+        if (totalGoals == 0)  {
+            return 0;
+        } else  {
+            return completedGoals / totalGoals;
+        }
     }
 
     addToGoalList(goal) {
