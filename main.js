@@ -594,6 +594,26 @@ app.post("/display-goal-creation", encoder, function (req, res) {
     })
 })
 
+app.post("/expand-create-relationship", encoder, function (req, res) {
+    userAccount.orgList.forEach(org => {
+        if (org.orgID == orgId) {
+            if (org.createRelationshipMenu == 0) {
+                org.createRelationshipMenu = 1;
+            } else  {
+                org.createRelationshipMenu = 0;
+            }
+
+            res.render('org_page', {
+                userAccount: userAccount,
+                selectedOrg: selectedOrg,
+                orgId: orgId,
+                adminUsername: adminUsername,
+                relationshipID: relationshipID
+            })
+        }
+    })
+})
+
 
 
 // function doesUsernameExist(username) {
@@ -646,6 +666,7 @@ class Org {
         this.name = name;
         this.adminUsername = adminUsername;
         this.userList = [];
+        this.createRelationshipMenu = 0;
     }
 
     addToUserList(user) {

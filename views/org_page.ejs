@@ -36,16 +36,6 @@
         </button>
     </form>
 
-    <!-- <ul>
-        <% userAccount.relationshipList.forEach(rel=> { %>
-            <% if (rel.orgID==orgId) { %>
-                <li>
-                    Mentor: <%= rel.mentor %> | Mentee: <%= rel.mentee %>
-                </li>
-                <% } %>
-                    <% }); %>
-    </ul> -->
-
     <form action="/display-goals" method="POST" id="displayGoals">
         <select name="relId" id="relId">
             <% userAccount.relationshipList.forEach(rel=> { %>
@@ -64,8 +54,18 @@
                                     <% }); %>
         </select>
         <button type="submit">Select Relationship</button>
+        <br>
 
     </form>
+
+    <% if (userAccount.username==adminUsername) { %>
+            <form action="/expand-create-relationship" method="POST">
+                <button type="submit">Create a New Relationship</button>
+            </form>
+            <% } else { %>
+                <span>Contact your organization admin to create a new relationship.</span>
+                <% } %>
+
     <ul>
         <% userAccount.relationshipList.forEach(rel=> { %>
             <% if (rel.relationshipID==relationshipID) { %>
@@ -81,13 +81,6 @@
                             <div id="pie"></div>
                             <div>
                                 <% rel.goalList.forEach(goal=> { %>
-                                    <!-- <form action="/expand-goal" method="POST">
-                            <button type="submit"class="expand">
-                                <%= goal.goalInfo %>
-
-                            </button>
-                            <input type="hidden" name="goalID" value="<%= goal.goalID %>">
-                        </form> -->
 
                                     <% if(goal.expanded==1){ %>
                                         <div class="expandedGoal">
@@ -180,9 +173,8 @@
                                                         <button type="submit">Create Goal</button>
                                                     </form>
                                                     <% } %>
-
-                                                        <% } %>
-                                                            <% }); %>
+                                                                                <% } %>
+                                                                                    <% }); %>
                             </div>
 
     </ul>
@@ -220,10 +212,9 @@
                         <% } %>
                             <% }) %>
 
-
-
-
-                                <% if (userAccount.username==adminUsername) { %>
+                            <% userAccount.orgList.forEach(org => { %>
+                                <% if (org.orgID == orgId) { %>
+                                    <% if (userAccount.username==adminUsername && org.createRelationshipMenu == 1) { %>
                                     <form action="/create-relationship" method="POST" id="createRelationship">
                                         <select name="mentor" id="mentor">
                                             <% userAccount.orgList.forEach(org=> { %>
@@ -263,6 +254,9 @@
                                         <button type="submit">Create Relationship</button>
                                     </form>
                                     <% } %>
+                                <% } %>
+                            <% }) %>
+                                
 
 
                                         <script>
