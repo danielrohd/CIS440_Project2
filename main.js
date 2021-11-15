@@ -98,9 +98,32 @@ app.get("/views/welcome", function (req, res) {
         if (error) throw error;
         results.forEach(element => userAccount.addToOrgList(new Org(element.orgId, element.orgName, element.adminUsername)));
 
+        if (userAccount.orgList.length > 0) {
+            selectedOrg = results[0].orgName;
+            orgId = results[0].orgId;
+            adminUsername = results[0].adminUsername;
+        }
+
         connection.query("select * from Relationships where mentee= ? or mentor= ?;", [userAccount.username, userAccount.username], function (error, results, fields) {
             if (error) throw error;
             results.forEach(element => userAccount.addToRelList(new Relationship(element.relationshipID, element.mentor, element.mentee, element.startDate, element.endDate, element.orgID)));
+
+            if (userAccount.orgList.length > 0) {
+                app.use("/org.css", express.static("org.css"))
+                res.render('org_page', {
+                    userAccount: userAccount,
+                    selectedOrg: selectedOrg,
+                    orgId: orgId,
+                    adminUsername: adminUsername,
+                    relationshipID: relationshipID
+                })
+            } else {
+                app.use("/org.css", express.static("org.css"))
+                res.render('organization_home', {
+                    userAccount: userAccount,
+                })
+            }
+
             // populating the userlist of each org
             userAccount.orgList.forEach(element =>
                 connection.query("select username from OrgMembers where orgID = ?;", [element.orgID], function (error, results, fields) {
@@ -131,9 +154,9 @@ app.get("/views/welcome", function (req, res) {
                 }));
 
             // not sure why all this has to be inside the query function but it doesnt work if it isnt in here
-            res.render('organization_home', {
-                userAccount: userAccount,
-            })
+            // res.render('organization_home', {
+            //     userAccount: userAccount,
+            // })
             // console.log(userAccount.orgList.userList)
             app.use("/welcome.css", express.static("welcome.css"));
         })
@@ -158,15 +181,38 @@ app.post("/join-org", encoder, function (req, res) {
                 connection.query("select * from Organizations where orgName = ?;", [orgName], function (error, results, fields) {
                     if (error) throw error;
                     userAccount.addToOrgList(new Org(results[0].orgId, results[0].orgName, results[0].adminUsername));
-                    res.render('organization_home', {
+                    userAccount.orgList.forEach(org => {
+                        if (org.orgID == results[0].orgId) {
+                            org.addToUserList(userAccount.username)
+                        }
+                    })
+                    orgId = results[0].orgId;
+                    selectedOrg = results[0].orgName;
+                    adminUsername = results[0].adminUsername; 
+                    res.render('org_page', {
                         userAccount: userAccount,
+                        selectedOrg: selectedOrg,
+                        orgId: orgId,
+                        adminUsername: adminUsername,
+                        relationshipID: relationshipID
                     })
                 })
             })
         } else {
-            res.render('organization_home', {
-                userAccount: userAccount,
-            })
+            if (userAccount.orgList.length == 0) {
+                res.render('organization_home', {
+                    userAccount: userAccount,
+                })
+            } else {
+                res.render('org_page', {
+                    userAccount: userAccount,
+                    selectedOrg: selectedOrg,
+                    orgId: orgId,
+                    adminUsername: adminUsername,
+                    relationshipID: relationshipID
+                })
+            }
+            
         }
     })
 })
@@ -187,8 +233,22 @@ app.post("/create-org", encoder, function (req, res) {
             connection.query("select * from Organizations where orgName = ?;", [orgName], function (error, results, fields) {
                 if (error) throw error;
                 userAccount.addToOrgList(new Org(results[0].orgId, results[0].orgName, results[0].adminUsername));
-                res.render('organization_home', {
+
+                userAccount.orgList.forEach(org => {
+                    if (org.orgID == results[0].orgId) {
+                        org.addToUserList(userAccount.username)
+                    }
+                })
+
+                orgId = results[0].orgId; 
+                selectedOrg = results[0].orgName;
+                adminUsername = results[0].adminUsername; 
+                res.render('org_page', {
                     userAccount: userAccount,
+                    selectedOrg: selectedOrg,
+                    orgId: orgId,
+                    adminUsername: adminUsername,
+                    relationshipID: relationshipID
                 })
             })
         })
@@ -282,6 +342,11 @@ app.post("/display-goals", encoder, function (req, res) {
     // console.log(relationshipID)
     userAccount.relationshipList.forEach(rel => {
         if (rel.relationshipID == relationshipID) {
+            if (rel.goalList.length > 0) {
+                rel.goalList[0].expanded = 1;
+            } else {
+                rel.addGoalStatus = 1;
+            }
             rel.goalList.forEach(goal => {
                 goal.checkStepCompletion()
             })

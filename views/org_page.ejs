@@ -12,29 +12,54 @@
 
 
 <body>
-    <h1 id="header">
-        <%= selectedOrg %> <br>
-            <%= userAccount.first %>'s Relationships
-    </h1>
-    <!-- lets you select an org, you can then see your relationships and create them if you're the admin -->
-    <form action="/org-page" method="POST" id="orgChoice">
-        <select name="orgChoice" id="orgChoice">
-            <% userAccount.orgList.forEach(org=> { %>
-                <% if (org.orgID==orgId) { %>
-                    <option value="<%= org.name %>" selected>
-                        <%= org.name %>
-                    </option>
+    <form action="/org-page" method="POST">
+        <div id="orgChoice">
+            
+            <select name="orgChoice">
+                <% userAccount.orgList.forEach(org=> { %>
+                    <% if (org.orgID==orgId) { %>
+                        <option value="<%= org.name %>" selected>
+                            <%= org.name %>
+                        </option>
                     <% } else { %>
                         <option value="<%= org.name %>">
                             <%= org.name %>
                         </option>
                         <% } %>
                             <% }); %>
-        </select>
-        <button type="submit">
-            Select Org
-        </button>
+            </select>
+            <button type="submit">
+                Select Org
+            </button>
+        </div>
+        
+        
     </form>
+
+    
+    
+    <div class="main" id="joinOrg">
+        <!-- <h1>Join an Organization</h1> -->
+        <form action="/join-org" method=POST class="form1">
+            <input type="text" name="orgName" align="center" placeholder="Organization Name">
+            <button type="submit" class="submit" align="center">Join Org</button>
+        </form>
+    </div>
+
+    
+    <div class="main" id="createOrg">
+        <!-- <h1>Create an Organization</h1> -->
+        <form action="/create-org" method=POST class="form1">
+            <input type="text" name="orgName" align="center" placeholder="Organization Name">
+            <button type="submit" class="submit" align="center">Create Org</button>
+        </form>
+    </div>
+    <h1 id="header">
+        <%= selectedOrg %> <br>
+            <%= userAccount.first %>'s Relationships
+    </h1>
+    <!-- lets you select an org, you can then see your relationships and create them if you're the admin -->
+    
 
     <form action="/display-goals" method="POST" id="displayGoals">
         <select name="relId" id="relId">
@@ -169,6 +194,7 @@
 
                                                         <label for="step1">Step 1: </label>
                                                         <input type="text" name="step1" id="step1" required>
+                                                        <br>
 
                                                         <button type="submit">Create Goal</button>
                                                     </form>

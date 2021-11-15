@@ -11,32 +11,10 @@
 
 <body>
     <h1>
-        <%= userAccount.first %>'s Organizations
+        <%= userAccount.first %>'s Account
     </h1>
-    <ul>
-        <% userAccount.orgList.forEach(org=> { %>
-            <li>
-                <%= org.name %>
-            </li>
-            <% }); %>
-    </ul>
 
-
-    <!-- lets you select an org, you can then see your relationships and create them if you're the admin -->
-    <form action="/org-page" method="POST" id="orgChoice">
-        <select name="orgChoice" id="orgChoice">
-            <% userAccount.orgList.forEach(org=> { %>
-                <option value="<%= org.name %>">
-                    <%= org.name %>
-                </option>
-                <% }); %>
-        </select>
-        <button type="submit">
-            Select Org
-        </button>
-    </form>
-
-    <h1>Join an Organization</h1>
+    <h2>Join an Organization</h2>
     <div class="main">
         <form action="/join-org" method=POST class="form1">
             <input type="text" name="orgName" align="center" placeholder="Organization Name">
@@ -44,7 +22,7 @@
         </form>
     </div>
 
-    <h1>Create an Organization</h1>
+    <h2>Create an Organization</h2>
     <div class="main">
         <form action="/create-org" method=POST class="form1">
             <input type="text" name="orgName" align="center" placeholder="Organization Name">
