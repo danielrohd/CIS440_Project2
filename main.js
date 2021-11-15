@@ -463,17 +463,31 @@ app.post("/mark-step-complete", encoder, function (req, res) {
                             if (stepID == step.stepID) {
                                 step.completed = newCompleted;
                                 if (newCompleted == 0 && goal.completed == 1) {
-                                    goal.completed = 0;
+                                    connection.query("UPDATE `cis440fall2021group5`.`Goals` SET completed = ? WHERE goalID = ?;", [0, goal.goalID], function (error, results, fields) {
+                                        if (error) throw error;
+                                        goal.completed = 0;
+                                        step.updateCompletedText()
+                                        goal.checkStepCompletion()
+                                        res.render('org_page', {
+                                            userAccount: userAccount,
+                                            selectedOrg: selectedOrg,
+                                            orgId: orgId,
+                                            adminUsername: adminUsername,
+                                            relationshipID: relationshipID
+                                        })
+                                    })
+                                } else {
+                                    step.updateCompletedText()
+                                    goal.checkStepCompletion()
+                                    res.render('org_page', {
+                                        userAccount: userAccount,
+                                        selectedOrg: selectedOrg,
+                                        orgId: orgId,
+                                        adminUsername: adminUsername,
+                                        relationshipID: relationshipID
+                                    })
                                 }
-                                step.updateCompletedText()
-                                goal.checkStepCompletion()
-                                res.render('org_page', {
-                                    userAccount: userAccount,
-                                    selectedOrg: selectedOrg,
-                                    orgId: orgId,
-                                    adminUsername: adminUsername,
-                                    relationshipID: relationshipID
-                                })
+
                             }
                         })
                     }
@@ -579,7 +593,7 @@ app.post("/display-goal-creation", encoder, function (req, res) {
                 rel.addGoalStatus = 0
             }
 
-            rel.goalList.forEach(goal =>{
+            rel.goalList.forEach(goal => {
                 goal.expanded = 0;
             })
 
@@ -599,7 +613,7 @@ app.post("/expand-create-relationship", encoder, function (req, res) {
         if (org.orgID == orgId) {
             if (org.createRelationshipMenu == 0) {
                 org.createRelationshipMenu = 1;
-            } else  {
+            } else {
                 org.createRelationshipMenu = 0;
             }
 
@@ -700,20 +714,20 @@ class Relationship {
 
     }
 
-    getPercentageComplete(){
+    getPercentageComplete() {
         var completedGoals = 0;
         var totalGoals = 0;
-        this.goalList.forEach(goal=>{
-            if(goal.completed == 1){
+        this.goalList.forEach(goal => {
+            if (goal.completed == 1) {
                 completedGoals += 1;
             }
             totalGoals += 1;
         })
         // console.log(completedGoals/totalGoals)
 
-        if (totalGoals == 0)  {
+        if (totalGoals == 0) {
             return 0;
-        } else  {
+        } else {
             return completedGoals / totalGoals;
         }
     }

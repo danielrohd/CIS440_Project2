@@ -216,6 +216,7 @@
                                 <% if (org.orgID == orgId) { %>
                                     <% if (userAccount.username==adminUsername && org.createRelationshipMenu == 1) { %>
                                     <form action="/create-relationship" method="POST" id="createRelationship">
+                                        <label for="mentor">Mentor: </label>
                                         <select name="mentor" id="mentor">
                                             <% userAccount.orgList.forEach(org=> { %>
                                                 <% if (org.orgID==orgId) { %>
@@ -229,6 +230,7 @@
                                                                 <% }) %>
                                         </select>
 
+                                        <label for="mentee">Mentee: </label>
                                         <select name="mentee" id="mentee">
                                             <% userAccount.orgList.forEach(org=> { %>
                                                 <% if (org.orgID==orgId) { %>
