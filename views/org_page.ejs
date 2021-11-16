@@ -100,11 +100,11 @@
             <% if (rel.relationshipID==relationshipID) { %>
                 <% if (rel.mentor==userAccount.username) { %>
                     <h3>
-                        <%= userAccount.first %>'s Goals with <%= rel.mentee %>
+                        <%= rel.mentee %>'s Goals with you
                     </h3>
                     <% } else if (rel.mentee==userAccount.username) { %>
                         <h3>
-                            <%= userAccount.first %>'s Goals with <%= rel.mentor %>
+                            Your Goals with <%= rel.mentor %>
                         </h3>
                         <% } %>
                             <div id="pie"></div>
