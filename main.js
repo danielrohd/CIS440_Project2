@@ -698,6 +698,16 @@ app.post("/expand-create-relationship", encoder, function (req, res) {
     })
 })
 
+app.post("/logout", encoder, function (req, res) {
+    userAccount = undefined;
+    selectedOrg = undefined;
+    orgId = undefined;
+    adminUsername = undefined;
+    relationshipID = undefined;
+
+    res.sendFile(__dirname + "/home.html");
+})
+
 
 
 // function doesUsernameExist(username) {
