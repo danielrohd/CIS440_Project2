@@ -126,20 +126,24 @@ body {
   }
 
 #logoutButton {
+  padding: .25vh .25vw;
   float: right;
 }
 
 #orgChoice {
+  padding: .25vh .25vw;
   clear: right;
   float: right;
 }
 
 #joinOrg {
+  padding: .25vh .25vw;
   clear: right;
   float: right;
 }
 
 #createOrg {
+  padding: .25vh .25vw;
   clear: right;
   float: right;
 }
