@@ -148,3 +148,17 @@ body {
   float: right;
 }
 
+.userComment {
+  background-color: lightblue;
+  padding: 3px;
+  margin: auto;
+  width: auto;
+  text-align: right;
+}
+
+.otherComment {
+  background-color: lightsalmon;
+  padding: 3px;
+  margin: auto;
+  width: auto;
+}

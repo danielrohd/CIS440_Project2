@@ -15,10 +15,10 @@
     <form action="/logout" method="POST" id="logoutButton">
         <button type="submit">Log Out</button>
     </form>
-    
+
     <form action="/org-page" method="POST">
         <div id="orgChoice">
-            
+
             <select name="orgChoice">
                 <% userAccount.orgList.forEach(org=> { %>
                     <% if (org.orgID==orgId) { %>
@@ -145,12 +145,22 @@
                                                             <% } %>
 
                                             </ul>
+                                            <br>
                                             <ul>
                                                 <% goal.commentList.forEach(comment=> { %>
-                                                    <p>
-                                                        <%= comment.author %> - <%= comment.commentText %> (<%=
+                                                    <% if (comment.author == userAccount.username) { %>
+                                                        <span class="userComment">
+                                                            <%= comment.commentText %> - (<%= comment.author %> <%=
                                                                     comment.commentDateString %>)
-                                                    </p>
+                                                        </span>
+                                                    <% } else { %>
+                                                        <span class="otherComment">
+                                                            <%= comment.commentText %> - (<%= comment.author %> <%=
+                                                                    comment.commentDateString %>)
+                                                        </span>
+                                                    <% } %>
+                                                    <br> <br>
+                                                    
                                                     <% }) %>
                                                         <form action="/create-comment" method="POST">
                                                             <li><input type="text" id="newCommentId" name="newComment">
