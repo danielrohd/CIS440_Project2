@@ -189,6 +189,7 @@ app.post("/join-org", encoder, function (req, res) {
                     orgId = results[0].orgId;
                     selectedOrg = results[0].orgName;
                     adminUsername = results[0].adminUsername; 
+                    relationshipID = undefined;
                     res.render('org_page', {
                         userAccount: userAccount,
                         selectedOrg: selectedOrg,
@@ -243,6 +244,7 @@ app.post("/create-org", encoder, function (req, res) {
                 orgId = results[0].orgId; 
                 selectedOrg = results[0].orgName;
                 adminUsername = results[0].adminUsername; 
+                relationshipID = undefined;
                 res.render('org_page', {
                     userAccount: userAccount,
                     selectedOrg: selectedOrg,
@@ -343,6 +345,9 @@ app.post("/display-goals", encoder, function (req, res) {
     userAccount.relationshipList.forEach(rel => {
         if (rel.relationshipID == relationshipID) {
             if (rel.goalList.length > 0) {
+                rel.goalList.forEach(goal => {
+                    goal.expanded = 0;
+                })
                 rel.goalList[0].expanded = 1;
             } else {
                 rel.addGoalStatus = 1;
@@ -691,6 +696,16 @@ app.post("/expand-create-relationship", encoder, function (req, res) {
             })
         }
     })
+})
+
+app.post("/logout", encoder, function (req, res) {
+    userAccount = undefined;
+    selectedOrg = undefined;
+    orgId = undefined;
+    adminUsername = undefined;
+    relationshipID = undefined;
+
+    res.sendFile(__dirname + "/home.html");
 })
 
 
