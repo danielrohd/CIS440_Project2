@@ -227,19 +227,20 @@
                                                 <% if (relationshipID !=undefined && rel.addGoalStatus==1) { %>
                                                     <form action="/create-goal" method="POST" id="createGoal"
                                                         class="expandedGoal">
-                                                        <label for="goalInfo">Goal Description: </label>
-                                                        <input type="text" name="goalInfo" id="goalInfo" required>
-                                                        <br>
+                                                        <label for="goalInfo">Goal Title: </label>
+                                                        <input type="text" name="goalInfo" id="goalInfo" placeholder="Title" required>
+                                                        <br><br>
 
                                                         <label for="dueDate">Due Date: </label>
-                                                        <input type="date" name="dueDate" id="dueDate" required>
                                                         <br>
+                                                        <input type="date" name="dueDate" id="dueDate" required>
+                                                        <br><br>
 
                                                         <label for="step1">Step 1: </label>
-                                                        <input type="text" name="step1" id="step1" required>
-                                                        <br>
+                                                        <input type="text" name="step1" id="step1" placeholder="Step Information" required>
+                                                        <br><br>
 
-                                                        <button type="submit">Create Goal</button>
+                                                        <button type="submit" class="button-9" id="createGoalButton">Create Goal</button>
                                                     </form>
                                                     <% } %>
                                                                                 <% } %>

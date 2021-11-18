@@ -221,6 +221,25 @@ body {
   background-color: #52ab98;
 }
 
+#createGoalButton {
+  background-color: #52ab98;
+  width: 100%;
+}
+
+#step1 {
+  width: 95%;
+  height: 30px;
+}
+
+#goalInfo {
+  width: 95%;
+  height: 30px;
+}
+
+#dueDate {
+  height: 30px;
+}
+
 #goalInfoHeader {
   margin: auto;
   text-align: center;
