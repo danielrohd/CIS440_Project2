@@ -188,7 +188,7 @@ app.post("/join-org", encoder, function (req, res) {
                     })
                     orgId = results[0].orgId;
                     selectedOrg = results[0].orgName;
-                    adminUsername = results[0].adminUsername; 
+                    adminUsername = results[0].adminUsername;
                     relationshipID = undefined;
                     res.render('org_page', {
                         userAccount: userAccount,
@@ -213,7 +213,7 @@ app.post("/join-org", encoder, function (req, res) {
                     relationshipID: relationshipID
                 })
             }
-            
+
         }
     })
 })
@@ -241,9 +241,9 @@ app.post("/create-org", encoder, function (req, res) {
                     }
                 })
 
-                orgId = results[0].orgId; 
+                orgId = results[0].orgId;
                 selectedOrg = results[0].orgName;
-                adminUsername = results[0].adminUsername; 
+                adminUsername = results[0].adminUsername;
                 relationshipID = undefined;
                 res.render('org_page', {
                     userAccount: userAccount,
@@ -412,10 +412,13 @@ app.post("/create-goal", encoder, function (req, res) {
                                                 relationshipID: relationshipID
                                             })
                                             var otherUsername;
+                                            var identifier;
                                             if (el.mentee == userAccount.username) {
                                                 otherUsername = el.mentor;
+                                                identifier = 'Their'
                                             } else {
                                                 otherUsername = el.mentee;
+                                                identifier = 'Your'
                                             }
                                             connection.query("select email from UserAccounts where username = ?;", [otherUsername], function (error, results, fields) {
                                                 if (error) throw error;
@@ -424,7 +427,7 @@ app.post("/create-goal", encoder, function (req, res) {
                                                     from: 'notFacebook440@gmail.com',
                                                     to: `${emailTo}`,
                                                     subject: `${userAccount.first} just created a new goal!`,
-                                                    text: `${userAccount.first} ${userAccount.last} just added a new goal to your mentor-mentee relationship! Their goal is: ${goalText}`
+                                                    text: `${userAccount.first} ${userAccount.last} just added a new goal to your mentor-mentee relationship! ${identifier} new goal is: ${goalText}`
                                                 };
                                                 mailTransporter.sendMail(mailDetails, function (err, data) {
                                                     if (err) {
@@ -447,7 +450,7 @@ app.post("/create-goal", encoder, function (req, res) {
 app.post("/create-comment", encoder, function (req, res) {
     var commentText = req.body.newComment;
     var tempGoalID = req.body.goalID;
-    console.log(commentText, tempGoalID);
+    // console.log(commentText, tempGoalID);
     var today = new Date();
     var date = today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate();
 
@@ -469,6 +472,33 @@ app.post("/create-comment", encoder, function (req, res) {
                                 orgId: orgId,
                                 adminUsername: adminUsername,
                                 relationshipID: relationshipID
+                            })
+
+                            var otherUsername;
+                            var identifier;
+                            if (el.mentee == userAccount.username) {
+                                otherUsername = el.mentor;
+                                identifier = 'their'
+                            } else {
+                                otherUsername = el.mentee;
+                                identifier = 'your'
+                            }
+                            connection.query("select email from UserAccounts where username = ?;", [otherUsername], function (error, results, fields) {
+                                if (error) throw error;
+                                var emailTo = results[0].email;
+                                mailDetails = {
+                                    from: 'notFacebook440@gmail.com',
+                                    to: `${emailTo}`,
+                                    subject: `${userAccount.first} just left a comment on one of ${identifier} goals!`,
+                                    text: `${userAccount.first} ${userAccount.last} just left a comment on ${identifier} goal, ${goal.goalInfo}: "${commentText}"`
+                                };
+                                mailTransporter.sendMail(mailDetails, function (err, data) {
+                                    if (err) {
+                                        console.log('Error Occurs');
+                                    } else {
+                                        console.log('Email sent successfully');
+                                    }
+                                });
                             })
                         }
                     })
@@ -595,10 +625,13 @@ app.post("/mark-goal-complete", encoder, function (req, res) {
                             relationshipID: relationshipID
                         })
                         var otherUsername;
+                        var identifier;
                         if (rel.mentee == userAccount.username) {
                             otherUsername = rel.mentor;
+                            identifier = 'their'
                         } else {
                             otherUsername = rel.mentee;
+                            identifier = 'your'
                         }
                         connection.query("select email from UserAccounts where username = ?;", [otherUsername], function (error, results, fields) {
                             if (error) throw error;
@@ -606,8 +639,8 @@ app.post("/mark-goal-complete", encoder, function (req, res) {
                             mailDetails = {
                                 from: 'notFacebook440@gmail.com',
                                 to: `${emailTo}`,
-                                subject: `${userAccount.first} just completed their goal!`,
-                                text: `${userAccount.first} ${userAccount.last} just marked their goal, "${goal.goalInfo}", as completed!`
+                                subject: `${userAccount.first} just completed ${identifier} goal!`,
+                                text: `${userAccount.first} ${userAccount.last} just marked ${identifier} goal, "${goal.goalInfo}", as completed!`
                             };
                             mailTransporter.sendMail(mailDetails, function (err, data) {
                                 if (err) {
