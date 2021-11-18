@@ -282,7 +282,12 @@
                     <% }) %>
                         <br>
                         <form action="/display-goal-creation" method="POST">
-                            <button type="submit" class="button-9 expand" id="newGoalMenuButton">Add New Goal</button>
+                            <% if (rel.addGoalStatus == 1) { %>
+                                <button type="submit" class="button-9 expand" id="newGoalMenuButtonSelected">Add New Goal</button>
+                            <% } else { %>
+                                <button type="submit" class="button-9 expand" id="newGoalMenuButton">Add New Goal</button>
+                            <% } %>
+                            
                         </form>
                         <% } %>
                             <% }) %>
@@ -370,7 +375,7 @@
                                                 // set legend position
                                                 //chart.legend().position("right");
                                                 // set items layout
-                                                chart.legend().itemsLayout("vertical");
+                                                chart.legend().itemsLayout("horizontal");
 
                                                 // makes the hovered section get bigger (doesnt work, idk why)
                                                 // chart.selected().explode("5%");

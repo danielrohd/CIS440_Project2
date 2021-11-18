@@ -30,7 +30,7 @@ body {
   .completedWrapper {
     position: relative;
     z-index: 1;
-    margin-left: -10px;
+    margin-left: -9px;
     height: 5vh;
     position: relative;
     width: 7vw;
@@ -49,7 +49,7 @@ body {
   .incompleteWrapper {
     position: relative;
     z-index: 1;
-    margin-left: -10px;
+    margin-left: -9px;
     height: 5vh;
     position: relative;
     width: 7vw;
@@ -202,6 +202,13 @@ body {
 #newGoalMenuButton {
   background-color: #2b6777;
   width: 300px;
+}
+
+#newGoalMenuButtonSelected {
+  background-color: #ffffff;
+  color: #2b6777;
+  width: 300px;
+  font-weight: bolder;
 }
 
 #goalCompletionButton {
