@@ -246,6 +246,15 @@ body {
   text-align: center;
 }
 
+#goalTitleHeader {
+  font-size: 1.5vw;
+  margin-bottom: 0;
+}
+
+#userRelationships {
+  margin-bottom: 0;
+}
+
 #orgDrop {
   height: 40px;
   font-size: 100%;

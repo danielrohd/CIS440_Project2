@@ -82,7 +82,7 @@
     </div>
     
 
-    <h1><%= userAccount.first %>'s Relationships</h1>
+    <h1 id="userRelationships"><%= userAccount.first %>'s Relationships</h1>
     <!-- lets you select an org, you can then see your relationships and create them if you're the admin -->
     
 
@@ -115,11 +115,11 @@
         <% userAccount.relationshipList.forEach(rel=> { %>
             <% if (rel.relationshipID==relationshipID) { %>
                 <% if (rel.mentor==userAccount.username) { %>
-                    <h3>
+                    <h3 id="goalTitleHeader">
                         <%= rel.mentee %>'s Goals with you
                     </h3>
                     <% } else if (rel.mentee==userAccount.username) { %>
-                        <h3>
+                        <h3 id="goalTitleHeader">
                             Your Goals with <%= rel.mentor %>
                         </h3>
                         <% } %>
