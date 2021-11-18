@@ -57,8 +57,8 @@
     <div class="main" id="joinOrg">
         <!-- <h1>Join an Organization</h1> -->
         <form action="/join-org" method=POST class="form1">
-            <input type="text" name="orgName" align="center" placeholder="Organization Name">
-            <button type="submit" class="submit" align="center">Join Org</button>
+            <input type="text" name="orgName" class="topRightInput" placeholder="Organization Name">
+            <button type="submit" class="topRightButtons button-9">Join Org</button>
         </form>
     </div>
 
@@ -66,15 +66,15 @@
     <div class="main" id="createOrg">
         <!-- <h1>Create an Organization</h1> -->
         <form action="/create-org" method=POST class="form1">
-            <input type="text" name="orgName" align="center" placeholder="Organization Name">
-            <button type="submit" class="submit" align="center">Create Org</button>
+            <input type="text" name="orgName" class="topRightInput" placeholder="Organization Name">
+            <button type="submit" class="topRightButtons button-9">Create Org</button>
         </form>
     </div>
 
     <div class="main" id="createRel">
         <% if (userAccount.username==adminUsername) { %>
         <form action="/expand-create-relationship" method="POST">
-            <button type="submit">Create a New Relationship</button>
+            <button type="submit" class="topRightButtons button-9">Create a New Relationship</button>
         </form>
         <% } else { %>
             <span>Contact your organization admin to create a new relationship.</span>
@@ -207,9 +207,9 @@
                                                         value="<%= goal.completed %>">
                                                     <br>
                                                     <% if (goal.completed==0) { %>
-                                                        <button type="submit" class="button-9">Mark Goal Complete</button>
+                                                        <button type="submit" class="button-9" id="goalCompletionButton">Mark Goal Complete</button>
                                                         <% } else { %>
-                                                            <button type="submit" class="button-9">Mark Goal Incomplete</button>
+                                                            <button type="submit" class="button-9" id="goalCompletionButton">Mark Goal Incomplete</button>
                                                             <% } %>
                                                 </form>
 
@@ -282,7 +282,7 @@
                     <% }) %>
                         <br>
                         <form action="/display-goal-creation" method="POST">
-                            <button type="submit" class="expand">Add New Goal</button>
+                            <button type="submit" class="button-9 expand" id="newGoalMenuButton">Add New Goal</button>
                         </form>
                         <% } %>
                             <% }) %>
@@ -350,8 +350,8 @@
                                                 var incompletedPercent = 1 - completedPercent
 
                                                 var data = [
-                                                    { x: "Completed", value: completedPercent, normal: { fill: "#339933" } },
-                                                    { x: "Not Complete", value: incompletedPercent, normal: { fill: "#851212" } },
+                                                    { x: "Completed", value: completedPercent, normal: { fill: "#52ab98" } },
+                                                    { x: "Not Complete", value: incompletedPercent, normal: { fill: "#2b6777" } },
 
                                                 ];
 
@@ -365,7 +365,7 @@
                                                 chart.data(data);
 
                                                 var background = chart.background();
-                                                background.fill("#F3EBF6");
+                                                background.fill("#c8d8e4");
 
                                                 // set legend position
                                                 //chart.legend().position("right");
