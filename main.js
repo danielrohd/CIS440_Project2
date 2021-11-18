@@ -345,6 +345,7 @@ app.post("/display-goals", encoder, function (req, res) {
     userAccount.relationshipList.forEach(rel => {
         if (rel.relationshipID == relationshipID) {
             if (rel.goalList.length > 0) {
+                rel.addGoalStatus = 0;
                 rel.goalList.forEach(goal => {
                     goal.expanded = 0;
                 })
