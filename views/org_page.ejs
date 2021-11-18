@@ -36,8 +36,8 @@
                 </div>
             </form>
 
-            <form action="/logout" method="POST" id="logoutButton">
-                <button type="submit" class="button-9">Log Out</button>
+            <form action="/logout" method="POST">
+                <button type="submit" class="button-9" id="logoutButton">Log Out</button>
             </form>
 
         </div>
@@ -71,12 +71,23 @@
         </form>
     </div>
 
+    <div class="main" id="createRel">
+        <% if (userAccount.username==adminUsername) { %>
+        <form action="/expand-create-relationship" method="POST">
+            <button type="submit">Create a New Relationship</button>
+        </form>
+        <% } else { %>
+            <span>Contact your organization admin to create a new relationship.</span>
+            <% } %>
+    </div>
+    
+
     <h1><%= userAccount.first %>'s Relationships</h1>
     <!-- lets you select an org, you can then see your relationships and create them if you're the admin -->
     
 
     <form action="/display-goals" method="POST" id="displayGoals">
-        <select name="relId" id="relId">
+        <select name="relId" id="relDrop">
             <% userAccount.relationshipList.forEach(rel=> { %>
                 <% if (rel.orgID==orgId) { %>
                     <% if (rel.relationshipID==relationshipID) { %>
@@ -92,18 +103,11 @@
                                 <% } %>
                                     <% }); %>
         </select>
-        <button type="submit">Select Relationship</button>
+        <button type="submit" class="button-9" id="selectRelationshipButton">Select Relationship</button>
         <br>
 
     </form>
 
-    <% if (userAccount.username==adminUsername) { %>
-            <form action="/expand-create-relationship" method="POST">
-                <button type="submit">Create a New Relationship</button>
-            </form>
-            <% } else { %>
-                <span>Contact your organization admin to create a new relationship.</span>
-                <% } %>
     </div>
     
 
@@ -252,11 +256,11 @@
                     <form action="/expand-goal" method="POST">
 
                         <% if (goal.expanded == 1) { %>
-                            <button type="submit" class="expand" id="selectedGoalButton">
+                            <button type="submit" class="button-9 expand" id="selectedGoalButton">
                                 <%= goal.goalInfo %>
                             </button>
                         <% } else { %>
-                            <button type="submit" class="expand">
+                            <button type="submit" class="button-9 expand">
                                 <%= goal.goalInfo %>
                             </button>
                         <% } %>

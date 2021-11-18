@@ -1,5 +1,5 @@
 body {
-  background-color: #F3EBF6;
+  background-color: #c8d8e4;
   font-family: 'Ubuntu', sans-serif;
   margin: 0;
   padding: 0;
@@ -21,24 +21,23 @@ body {
       background-color: white;
   }
 
+ #pie {
+    width: 30vw;
+    height: 70vh;
+    margin: 0;
+    padding: 0;
+    float: right;
+  }
+
   .completedWrapper {
     height: 5vh;
     position: relative;
     width: 7vw;
   }
 
-  #pie {
-    width: 30vw;
-    height: 70vh;
-    margin: 0;
-    padding: 0;
-    float: right;
-
-  }
-
   .completedIcon {
     /* background: radial-gradient(ellipse at center, rgba(0,128,172,1)0%,rgba(0,128,172,1)70%, rgba(0,128,172,0)70.3%); */
-    background-color: rgb(0, 128, 0);
+    background-color: #4a6b64;
     border-radius: 6vw;
     padding: .5vw;
     width: 60px;
@@ -53,7 +52,8 @@ body {
 
   .incompleteIcon {
     /* background: radial-gradient(ellipse at center, rgba(0,128,172,1)0%,rgba(0,128,172,1)70%, rgba(0,128,172,0)70.3%); */
-    background-color: rgb(133, 18, 18);
+    background-color: #ffffff;
+    color: black;
     border-radius: 6vw;
     padding: .5vw;
     width: 60px;
@@ -65,20 +65,8 @@ body {
   }
   
   .expand {
-    position: relative;
-    /* padding-left: 30px; */
-    font-weight: bold;
-    height: 50px;
-    line-height: 50px;
-    margin: 5px;
-    border: 1px solid #aaa;
-    border-radius: 8px;
-    width: 200px;
-    background: #cccccc; 
-    cursor: pointer;
-    
-    box-shadow: 2px 2px 3px #666;
-    user-select: none;
+    width: 300px;
+    background-color: #2b6777;
   }
   
   /* .expand button:before {
@@ -144,13 +132,19 @@ body {
   float: right;
 }
 
+#createRel {
+  padding: .25vh .25vw;
+  clear: right;
+  float: right;
+}
+
 #header {
   text-align: center;
   margin-top: 0;
   margin-bottom: 2px;
   
   padding: 10px 0px 10px 0px;
-  background-color: khaki;
+  background-color: #ffffff;
 }
 
 #headerText  {
@@ -185,6 +179,17 @@ body {
 
 #selectOrgButton {
   width: auto;
+  background-color: #52ab98;
+}
+
+#logoutButton {
+  background-color: #52ab98;
+  width: auto;
+}
+
+#selectRelationshipButton {
+  width: auto;
+  background-color: #52ab98;
 }
 
 #goalInfoHeader {
@@ -193,7 +198,12 @@ body {
 }
 
 #orgDrop {
-  height: 45px;
+  height: 40px;
+  font-size: 100%;
+}
+
+#relDrop {
+  height: 40px;
   font-size: 100%;
 }
 
@@ -206,7 +216,6 @@ body {
 .button-9 {
   appearance: button;
   backface-visibility: hidden;
-  background-color: #405cf5;
   border-radius: 6px;
   border-width: 0;
   box-shadow: rgba(50, 50, 93, .1) 0 0 0 1px inset,rgba(50, 50, 93, .1) 0 2px 5px 0,rgba(0, 0, 0, .07) 0 1px 1px 0;
@@ -229,7 +238,7 @@ body {
   user-select: none;
   -webkit-user-select: none;
   touch-action: manipulation;
-  width: 100%;
+  /* width: 100%; */
 }
 
 .button-9:disabled {
